@@ -1,28 +1,41 @@
 /* Nav.css */
-.navbar {
-    background-color: #333;
-    padding: 10px;
-}
 
-.nav-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    text-align: right;
-}
-
-.nav-item {
-    display: inline;
-    margin-right: 20px;
-    color: white;
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    background-color: #333; 
+    padding: 10px 40px; 
+  }
+  
+  a {
     text-decoration: none;
+    color: white; 
+    padding: 10px 15px;
+    border-radius: 5px;
+  }
+  
+  a:hover {
     cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
-    transition: color 0.3s ease-in-out;
-}
-
-.nav-item:hover {
-    color: #61dafb;
-    /* Change color on hover, adjust as needed */
-}
+  }
+  
+  .nav-left {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+  }
+  
+  .nav-left a:hover {
+    background-color: #ee823a;
+  }
+  
+  .nav-right {
+    display: flex;
+    align-items: center; 
+    margin-left: auto; 
+  }
+  
+  .nav-right a:hover {
+    background-color: #57a0d3;
+  }
+  

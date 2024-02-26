@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+// LoginSignup.js
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser, faPhone, faSortAlphaDownAlt } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import './LoginSignup.css';
+import useAuth from './UserAuthorization';
+import { jwtDecode } from "jwt-decode"; 
+
 
 const LoginSignup = () => {
     const navigate = useNavigate();
@@ -17,7 +21,9 @@ const LoginSignup = () => {
     const [L_email, setL_email] = useState('');
     const [L_password, setL_password] = useState('');
     const [passwordStrength, setPasswordStrength] = useState('');
-
+ 
+    const {login, authenticated} = useAuth(); //destructuring the login function from UserAuthorization.js
+    const [loading, setLoading] = useState(false);
 
     const toggleForm = () => {
         setShowLogin(!showLogin);
@@ -95,24 +101,53 @@ const LoginSignup = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
+            setLoading(true); // Set loading to true before making the request
+
             const result = await axios.post('http://localhost:3001/login', { L_email, L_password });
         
-           // Save the token to local storage
-            localStorage.setItem('token', result.data.token);
-        
+              // Save the token to local storage
+              localStorage.setItem('token', result.data.token);
+            
+              // Decode the token to get user information
+              const decodedToken = jwtDecode(result.data.token);
+
+              // Extract user role from decoded token
+              const userRole = decodedToken.role;
+                console.log('User Role:', userRole); // Log the user role
+
+              // Call the login function to update the authenticated state
+              login(result.data.token, userRole); 
+
             console.log(result);
-    
-            // Assuming login is successful, redirect to home
-            Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: "Login Successful!!",
-                showConfirmButton: false,
-                timer: 1500
-            });
-    
-            // Redirect to home page after successful login
-            navigate('/home');
+
+            // Redirect based on user role after successful login
+            if (userRole === 'user') {
+                navigate('/home');
+                // Show login successful alert after a delay
+                setTimeout(() => {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "Login Successful!!",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }, 300); // setTimeout to ensure the SweetAlert appears after navigation
+            } else if (userRole === 'admin') {
+                navigate('/admin');
+                // Show login successful alert after a delay
+                setTimeout(() => {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "Login Successful!!",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }, 200); // Adjust the delay time as needed
+
+            }
+
         } catch (err) {
             console.log(err.response);
     
@@ -130,7 +165,7 @@ const LoginSignup = () => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Server Error',
-                        text: 'An internal server error occurred. Please try again later.',
+                        text: 'An internal server error occurred. Please try again later.',  
                     });
                 } else {
                     // Other server errors, log to console
@@ -147,10 +182,11 @@ const LoginSignup = () => {
                 // Something happened in setting up the request that triggered an Error
                 console.error('Request error:', err.message);
             }
-        }
+        } finally {
+            setLoading(false); // Set loading to false after handling the request
+          }
     };
     
-
     return (
         <>
             <div className='leftside'>

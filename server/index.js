@@ -77,14 +77,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Protected route example
-app.get('/protected', authenticateToken, (req, res) => {
-    if (req.user.role === 'admin') {
-        res.json({ message: 'Admin resource accessed' });
-    } else if (req.user.role === 'user') {
-        res.json({ message: 'User resource accessed' });
-    }
-}); 
 
 app.listen(3001, () => {
     console.log("Server is Running!!");

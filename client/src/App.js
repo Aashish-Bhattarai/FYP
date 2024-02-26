@@ -1,19 +1,75 @@
-import React from 'react';
+// App.js
+import React, {Fragment} from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
 import LoginSignup from './components/LoginSignup';
 import HomePage from './components/HomePage';
 import AdminDashboard from './components/AdminDashboard';
 
-function App() {
+const App = () => {
   return (
     <Router>
+      <Fragment>
       <Routes>
         <Route path="/" element={<LoginSignup />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/admin" element={<AdminDashboard/>} />
+        <Route path="/home" element={<PrivateRoute />}>
+          <Route index element={<HomePage />} />
+        </Route>
+        <Route path="/admin" element={<PrivateRoute />}>
+          <Route index element={<AdminDashboard />} />
+        </Route>
       </Routes>
+      </Fragment>
     </Router>
   );
-}
+};
+
 
 export default App;
+
+
+/* 
+// Corrected App.js
+import React, { Fragment } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
+import LoginSignup from './components/LoginSignup';
+import HomePage from './components/HomePage';
+import AdminDashboard from './components/AdminDashboard';
+
+const App = () => {
+  return (
+    <Router>
+      <Fragment>
+        <Routes>
+          <Route path="/" element={<PrivateRoute />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/login" element={<LoginSignup />} />
+        </Routes>
+      </Fragment>
+    </Router>
+  );
+};
+
+export default App;
+*/
+
+/* 
+const app = () => {
+  return (
+    <router>
+      <fragment>
+        <routes>
+          <route exact path='/' element={<privateroute/>}>
+            <route exact path='/' element={<home/>}/>
+          </route>
+          <route exact path='/register' element={<register/>}/>
+          <route exact path='/login' element={<login/>}/>
+        </routes>
+      </fragment>
+    </router>
+    
+  );
+}
+*/
