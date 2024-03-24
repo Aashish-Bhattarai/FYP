@@ -1,109 +1,47 @@
 /* HomePage.css */
+
 body {
-    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-}
-
-.home-page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-header.hero {
-    position: relative;
-    height: 60vh;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    background: linear-gradient(to right, #00416A, #1E6689);
-    color: white;
-}
-
-.hero-content {
-    max-width: 50%;
-}
-
-.hero h1 {
-    font-size: 3rem;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .welcome-section {
+    text-align: center;
+    margin-top: 200px;
+  }
+  
+  .welcome-section h1 {
+    font-size: 2.5em;
     margin-bottom: 20px;
-}
-
-.hero p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-}
-
-.cta-button {
-    background-color: #61dafb;
+  }
+  
+  .welcome-section p {
+    color: #666;
+    font-size: 1.2em;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+  }
+  
+  .main-btn {
+    background-color: #57a0d3;
     color: white;
     padding: 15px 30px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease-in-out;
-}
-
-.cta-button:hover {
-    background-color: #47a7f5;
-}
-
-header img {
-    width: 50%;
-    height: auto;
-    border-radius: 8px;
-}
-
-.features {
-    padding: 50px 20px;
-    background-color: #F5F5F5;
-    text-align: center;
-}
-
-.features h2 {
-    font-size: 2rem;
-    margin-bottom: 30px;
-}
-
-.feature-cards {
-    display: flex;
-    justify-content: space-around;
-}
-
-.feature-card {
-    flex: 1;
-    max-width: 250px;
-    padding: 20px;
-    margin: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: white;
-}
-
-.feature-card img {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 10px;
-}
-
-footer {
-    background-color: #333;
-    color: white;
-    padding: 20px;
-    text-align: center;
-    margin-top: auto;
-}
-
-.footer-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.social-media-icons img {
-    width: 30px;
+    font-size: 1.2em;
     margin: 0 10px;
-}
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 250px; /* Fixed width for all buttons */
+    transition: background-color 0.3s ease;
+  }
+  
+  .main-btn:hover {
+    background-color: #ee823a;
+  }
+
+  

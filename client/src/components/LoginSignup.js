@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faLock, faUser, faPhone, faSortAlphaDownAlt } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLock, faUser, faPhone} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import './LoginSignup.css';

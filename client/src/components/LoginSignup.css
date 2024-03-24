@@ -5,14 +5,14 @@ body {
 div.leftside {
     float: left;
     width: 40%;
-    height: 900px;
+    height: 1000px;
     display: flex;
     justify-content: center;
 }
 
 div.Image-Container {
     position: relative;
-}
+} 
 
 img.background-image {
     width: 100%;
@@ -30,7 +30,7 @@ img.overlay-image {
 }
 
 div.rightside {
-    float: right;
+    float: right; 
     width: 60%;
     height: 900px;
     background-color: white;

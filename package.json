@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "geolib": "^3.3.4",
+    "recharts": "^2.12.3"
+  },
+  "devDependencies": {
+    "babel-loader": "^9.1.3"
+  }
+}

@@ -18,7 +18,7 @@ const PrivateRoute = () => {
     checkAuthentication();
   }, []);
 
-  if (loading) {
+  if (loading||checkingAuth) {
     // Customize the loading screen appearance here
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', height: '100vh' }}>

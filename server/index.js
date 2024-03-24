@@ -29,6 +29,20 @@ function authenticateToken(req, res, next) {
     });
 }
 
+// Protected Home Route
+app.get('/home', authenticateToken, (req, res) => {
+    // The 'authenticateToken' middleware ensures that the request has a valid token
+    // and sets the user information in the 'req.user' object
+    res.json({ message: 'This is the home route', user: req.user });
+});
+
+// Protected Admin Route
+app.get('/admin', authenticateToken, (req, res) => {
+    // The 'authenticateToken' middleware ensures that the request has a valid token
+    // and sets the user information in the 'req.user' object
+    res.json({ message: 'This is the admin route', user: req.user });
+});
+
 // Sign-up route
 app.post('/signup', async (req, res) => {
     const { name, email, phone, password } = req.body;

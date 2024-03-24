@@ -1,0 +1,28 @@
+/* DateTime.css */
+
+.datetime-picker-container {
+  margin-top: 8px;
+}
+
+.datetime-picker-label {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.custom-date-picker {
+  width: 325px;
+  height: 30px;
+  margin-left: 5px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.selected-datetime {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+

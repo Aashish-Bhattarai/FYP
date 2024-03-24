@@ -5,6 +5,8 @@ import PrivateRoute from './components/PrivateRoute';
 import LoginSignup from './components/LoginSignup';
 import HomePage from './components/HomePage';
 import AdminDashboard from './components/AdminDashboard';
+import PickupAndDropService from './components/PickupAndDropService';
+
 
 const App = () => {
   return (
@@ -15,8 +17,11 @@ const App = () => {
         <Route path="/home" element={<PrivateRoute />}>
           <Route index element={<HomePage />} />
         </Route>
-        <Route path="/admin" element={<PrivateRoute />}>
+        <Route path="/Admin" element={<PrivateRoute />}>
           <Route index element={<AdminDashboard />} />
+        </Route>
+        <Route path="/pick&drop" element={<PrivateRoute />}>
+          <Route index element={<PickupAndDropService />} />
         </Route>
       </Routes>
       </Fragment>

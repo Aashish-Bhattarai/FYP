@@ -1,12 +1,11 @@
 // UserAuthorization.js
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 const useAuth = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const navigate = useNavigate();
+  const [checkingAuth, setCheckingAuth] = useState(true); // Default to true until the check is complete.
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -20,6 +19,7 @@ const useAuth = () => {
       setAuthenticated(false);
       setUserRole(null);
     }
+    setCheckingAuth(false); // Set checkingAuth to false when the check is complete.
   }, []);
 
   const login = (token, role) => {
