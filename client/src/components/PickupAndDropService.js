@@ -1,5 +1,5 @@
 // PickupAndDropService.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Nav from './Nav';
 import Footer from './Footer';
 import './PickupAndDropService.css';
@@ -8,14 +8,26 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faMapLocation, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import Maps from './Map';
 import PickupSearchBox from './PickupSearchBox';
-import { size } from '@floating-ui/react-dom';
 import DropSearchBox from './DropSearchBox';
 
-const PickupAndDropService = () => {
+const PickupAndDropService = (props) => {
 
-  const [selectPosition, setSelectPosition] = useState(null);
+  const [pickupPosition, setPickupPosition] = useState(null);
+  const [dropPosition, setDropPosition] = useState(null);
+  const {distance} = props;
 
-  
+  // const [cost, setCost] = useState(null);
+
+  // useEffect(() => {
+  //   // Calculate cost if distance is provided
+  //   if (distance !== null) {
+  //     const calculatedCost = distance * 200;
+  //     setCost(calculatedCost);
+  //   }
+  // }, [distance]);
+
+  // console.log("distance: ", distance)
+
   return (
     <>
       <Nav />
@@ -30,17 +42,23 @@ const PickupAndDropService = () => {
             </div>
             <div className='Pick-up'>
             <b><p style={{ fontSize: '21px' }}>Pick-Up Location &nbsp;<FontAwesomeIcon icon={faMapLocationDot} /> :</p></b>
-             <PickupSearchBox selectPosition={selectPosition} setSelectPosition={setSelectPosition}/>
+             <PickupSearchBox selectPosition={pickupPosition} setSelectPosition={setPickupPosition}/>
             </div>
             <div className='Drop'>
             <b><p style={{ fontSize: '21px' }}>Drop Location &nbsp;<FontAwesomeIcon icon={faMapLocationDot} /> :</p></b>
-            <DropSearchBox selectPosition={selectPosition} setSelectPosition={setSelectPosition}/>
+            <DropSearchBox selectPosition={dropPosition} setSelectPosition={setDropPosition}/>
             </div>
+            {/* {distance !== null && (
+              <div>
+                <p><b>Distance to travel:</b> {distance} km</p>
+                <p><b>Cost:</b> NPR {cost}</p>
+              </div>
+            )} */}
           </div>
           <button className='confirmation'> Confirm </button>
         </div>
         <div className='right-side'>
-          <Maps />
+          <Maps pickupPosition = {pickupPosition} dropPosition = {dropPosition} setPickupPosition = {setPickupPosition} setDropPosition = {setDropPosition} />
         </div>
       </div>
       <Footer />

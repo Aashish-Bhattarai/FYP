@@ -1,3 +1,5 @@
+//PickupSearchBox.js
+
 import React, { useState, useEffect } from "react";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
 import Button from "@material-ui/core/Button";
@@ -15,15 +17,24 @@ const Butwal_Long = 83.46399466;
 const MAX_DISTANCE = 15; // in kilometers
 
 export default function PickupSearchBox(props) {
-  const { selectPosition, setSelectPosition } = props;
-  const [searchText, setSearchText] = useState("");
+  const { selectPosition, setSelectPosition, pickupSearchText } = props;
+  const [searchText, setSearchText] = useState(pickupSearchText ?? "");
   const [listPlace, setListPlace] = useState([]);
 
   useEffect(() => {
+    setSearchText(pickupSearchText || ''); // Update searchText when pickupSearchText changes
+  }, [pickupSearchText]);
+
+  useEffect(() => {
+    console.log("searchText :", searchText); // Log searchText for debugging
+  }, [searchText]);
+
+
+  useEffect(() => {
     // Calculate the bounding box based on Butwal's coordinates and maximum distance
-    const minLat = Butwal_Lat - (MAX_DISTANCE / 110.574); // 1 degree of latitude is approximately 110.574 kilometers
+    const minLat = Butwal_Lat - (MAX_DISTANCE / 110.574); 
     const maxLat = Butwal_Lat + (MAX_DISTANCE / 110.574);
-    const minLon = Butwal_Long - (MAX_DISTANCE / (111.32 * Math.cos(Butwal_Lat * (Math.PI / 180)))); // 1 degree of longitude varies based on latitude
+    const minLon = Butwal_Long - (MAX_DISTANCE / (111.32 * Math.cos(Butwal_Lat * (Math.PI / 180)))); 
     const maxLon = Butwal_Long + (MAX_DISTANCE / (111.32 * Math.cos(Butwal_Lat * (Math.PI / 180))));
 
     // Update the bounding box parameters in the search URL
@@ -31,7 +42,7 @@ export default function PickupSearchBox(props) {
       q: "",
       format: "json",
       addressdetails: "addressdetails",
-      bbox: `${minLon},${minLat},${maxLon},${maxLat}`, // Include bounding box coordinates
+      bbox: `${minLon},${minLat},${maxLon},${maxLat}`, 
     };
     setParams(params);
   }, []);
@@ -56,9 +67,9 @@ export default function PickupSearchBox(props) {
               placeholder="Search Pick-up Location Here..."
               value={searchText}
               onChange={(event) => {
-            setSearchText(event.target.value);
-            }}
-            endAdornment={
+                setSearchText(event.target.value);
+              }}
+              endAdornment={
             searchText && (
             <IconButton
             aria-label="clear search"
@@ -113,7 +124,9 @@ export default function PickupSearchBox(props) {
               button
               key={item?.place_id}
               onClick={() => {
-                setSelectPosition(item);
+                setSelectPosition(item); // sets the position value to the clicked location from the lists
+                setSearchText(item.display_name);  // Update search text with selected place
+                setListPlace([]); // Clear the list of places after a place is selected
               }}
             >
               <ListItemIcon>
@@ -152,3 +165,4 @@ export default function PickupSearchBox(props) {
     return distance;
   }
 }
+

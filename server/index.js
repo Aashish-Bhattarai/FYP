@@ -5,8 +5,13 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // Import JWT library
 const crypto = require('crypto'); // Import the crypto module for secret key generation
-const UserModel = require('./models/user');
 
+const multer = require('multer');
+const path = require("path")
+
+
+const UserModel = require('./models/user');
+const PackageModel = require('./models/package')
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -91,6 +96,69 @@ app.post('/login', async (req, res) => {
     }
 });
 
+
+const storages = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, "../client/public/images"));
+    },
+    filename: (req, file, cb) => {
+      cb(
+        null,
+        file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+      );
+    },
+  });
+  
+  const uploads = multer({
+    storage: storages,
+  });
+  
+  app.use(
+    "/images",
+    express.static("../client/public/images")
+  );
+  
+  app.post("/Package", uploads.single("file"), async (req, res) => {
+    try {
+      if (!req.file) {
+        throw new Error("No file uploaded.");
+      }
+  
+      const {
+        PackageName,
+        Description,
+        Duration,
+        VehicleName,
+        VehicleType,
+        Cost,
+      } = req.body;
+  
+      const Image = req.file.filename;
+  
+  
+      // Create a new hostel entry in the database
+      const Package = await PackageModel.create({
+        PackageName,
+        Description,
+        Duration,
+        VehicleName,
+        VehicleType,
+        Cost,
+        Image,
+      });
+  
+      res.status(201).json(Package); // Respond with the created hostel data
+    } catch (error) {
+      console.error("Error in Package Add endpoint:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get("/ViewPackage", (req, res)=>{
+    PackageModel.find({})
+    .then((viewPackage) => res.json(viewPackage))
+    .catch((err) => res.json(err));
+  })
 
 app.listen(3001, () => {
     console.log("Server is Running!!");

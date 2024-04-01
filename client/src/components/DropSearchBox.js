@@ -1,3 +1,5 @@
+//DropSearchBox.js
+
 import React, { useState, useEffect } from "react";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
 import Button from "@material-ui/core/Button";
@@ -5,7 +7,8 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import Divider from "@material-ui/core/Divider";
+import IconButton from "@material-ui/core/IconButton";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?";
 
@@ -14,9 +17,20 @@ const Butwal_Long = 83.46399466;
 const MAX_DISTANCE = 70; // in kilometers
 
 export default function DropSearchBox(props) {
-  const { selectPosition, setSelectPosition } = props;
-  const [searchText, setSearchText] = useState("");
+  const { selectPosition, setSelectPosition, DropSearchText } = props;
+  const [searchText, setSearchText] = useState(DropSearchText ?? "");
   const [listPlace, setListPlace] = useState([]);
+
+
+  useEffect(() => {
+    setSearchText(DropSearchText || ''); // Update searchText when DropSearchText changes
+  }, [DropSearchText]);
+
+  useEffect(() => {
+    console.log("searchText :", searchText); // Log searchText for debugging
+  }, [searchText]);
+
+
 
   useEffect(() => {
     // Calculate the bounding box based on Butwal's coordinates and maximum distance
@@ -41,6 +55,12 @@ export default function DropSearchBox(props) {
     addressdetails: "addressdetails",
   });
 
+  const handleClearSearch = () => {
+    setSearchText("");
+    setListPlace([]);
+  };
+
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex" }}>
@@ -52,6 +72,17 @@ export default function DropSearchBox(props) {
             onChange={(event) => {
               setSearchText(event.target.value);
             }}
+            endAdornment={
+              searchText && (
+              <IconButton
+              aria-label="clear search"
+              onClick={handleClearSearch}
+              style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)" }}
+            >
+              <DeleteIcon />
+            </IconButton>
+            )
+            }
           />
         </div>
         <div
@@ -96,7 +127,9 @@ export default function DropSearchBox(props) {
               <ListItem
                 button
                 onClick={() => {
-                  setSelectPosition(item);
+                  setSelectPosition(item); // sets the position value to the clicked location from the lists
+                  setSearchText(item.display_name); // Update search text with selected place
+                  setListPlace([]); // Clear the list of places after a placed is selected
                 }}
               >
                 <ListItemIcon>
@@ -108,7 +141,6 @@ export default function DropSearchBox(props) {
                 </ListItemIcon>
                 <ListItemText primary={item?.display_name} />
               </ListItem>
-              <Divider />
             </div>
           ))}
         </List>
