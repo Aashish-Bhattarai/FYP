@@ -31,8 +31,11 @@ const Submit = (e) => {
 }
 
   return (
-    <div>
-      <form  onSubmit={Submit} style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px', marginTop: '20px', marginLeft: 'auto', marginRight: 'auto', width: '50%' }}>
+    <div style={{ marginBottom: '30px', marginTop: '30px'}}>
+        <div style={{ backgroundColor: '#4682B4', color: '#fff', textAlign: 'center', padding: '10px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', width: '50%', margin: 'auto' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>Add Package: </h2>
+        </div> 
+        <form  onSubmit={Submit} style={{ backgroundColor: '#f5f5f5', padding: '20px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px', marginLeft: 'auto', marginRight: 'auto', width: '50%' }}>
         <div className="form-group">
           <label htmlFor="exampleFormControlInput1"><h5>Package Name: </h5></label>
           <input type="text" className="form-control" id="exampleFormControlInput1" placeholder="Enter Package Name Here.." onChange={(e) => setPackageName(e.target.value)}/>

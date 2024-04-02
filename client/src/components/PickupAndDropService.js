@@ -5,7 +5,7 @@ import Footer from './Footer';
 import './PickupAndDropService.css';
 import DateTime from './DateTime';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faMapLocation, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import Maps from './Map';
 import PickupSearchBox from './PickupSearchBox';
 import DropSearchBox from './DropSearchBox';

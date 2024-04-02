@@ -8,6 +8,8 @@ import PickupAndDropService from './components/PickupAndDropService';
 import AdminDashboard from './components/AdminDashboard';
 import AdminPackage from './components/AdminPackage';
 import TourPackages from './components/TourPackages';
+import AdminManagePackage from './components/AdminManagePackages';
+import UpdatePackage from './components/UpdatePackage';
 
 
 
@@ -19,6 +21,8 @@ const App = () => {
         <Route path="/" element={<LoginSignup />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/AdminPackage" element={<AdminPackage />} />
+        <Route path="/AdminManagePackage" element={<AdminManagePackage />} />
+        <Route path="/UpdatePackage/:id" element={<UpdatePackage/>} />
         <Route path="/TourPackages" element={<TourPackages />} />
         {/* <Route path="/dashboard" element={<Dashboard/>}/> */}
         <Route path="/home" element={<PrivateRoute />}>

@@ -159,7 +159,45 @@ const storages = multer.diskStorage({
     .then((viewPackage) => res.json(viewPackage))
     .catch((err) => res.json(err));
   })
+  app.get("/ViewPackage/:id", (req, res)=>{
+    const id= req.params.id;
+    PackageModel.findById({_id: id})
+    .then((viewPackage) => res.json(viewPackage))
+    .catch((err) => res.json(err));
+  })
 
+
+
+app.put("/UpdatePackage/:id", (req, res) => {
+  const id = req.params.id;
+  PackageModel.findByIdAndUpdate(
+    { _id: id },
+    {
+      PackageName: req.body.PackageName,
+      Description: req.body.Description,
+      Duration: req.body.Duration,
+      VehicleName: req.body.VehicleName,
+      VehicleType: req.body.VehicleType,
+      Cost: req.body.Cost,
+      Image: req.body.Image,
+    }
+  )
+    .then((UpdatePackage) => res.json(UpdatePackage))
+    .catch((err) => res.json(err));
+});
+
+// app.put("/UpdatePackageImg/:id", upload.single("image"), (req, res) => {
+//   const id = req.params.id;
+//   const imagePath = req.file.filename;
+
+//   PackageModel.findByIdAndUpdate(
+//     { _id: id },
+//     { image: imagePath },
+//     { new: true }
+//   )
+//     .then((updatedPackage) => res.json(updatedPackage))
+//     .catch((err) => res.status(500).json({ error: err }));
+// });
 app.listen(3001, () => {
-    console.log("Server is Running!!");
+  console.log("Server is Running!!");
 });

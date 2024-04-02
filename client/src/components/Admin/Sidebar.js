@@ -1,7 +1,7 @@
-//Sidebar.js
-
 import React from 'react';
 import { Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import './adminui.css';
 
 function Sidebar() {
@@ -20,6 +20,10 @@ function Sidebar() {
                 <Link to="/AdminPackage" className='list-group-item py-2'>
                     <i className='bi bi-house fs-5 me-3'></i>
                     <span>Packages</span>
+                </Link>
+                <Link to="/AdminManagePackage" className='list-group-item py-2'>
+                    <i className='bi bi-house fs-5 me-3'></i>
+                    <span>Manage Packages</span>
                 </Link>
                 <Link to="/products" className='list-group-item py-2'>
                     <i className='bi bi-table fs-5 me-3'></i>
@@ -47,4 +51,3 @@ function Sidebar() {
 }
 
 export default Sidebar;
-
