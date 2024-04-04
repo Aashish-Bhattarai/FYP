@@ -9,6 +9,7 @@ const PackageSchema = new mongoose.Schema(
         VehicleType: String,
         Cost: Number,
         Image: String,
+        Recommended: [String], // Array of strings to store recommended activities
     }
 )
 

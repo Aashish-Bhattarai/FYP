@@ -42,18 +42,27 @@ function ManagePackage() {
         >
           <div className="card-inner row">
             <div className="card-content">
+              <div className="details" style={{display:'flex', position:'relative', backgroundColor: '#e8e8e8', borderRadius: '5px'}}>
+              <div className="package-image" style={{float: 'left', width: '35%', marginLeft: '15px'}}>
               <img
                 src={`http://localhost:3001/images/${packageDetails.Image}`}
-                alt={`Room ${packageDetails.PackageName}`}
                 className="img-fluid mb-3"
-                style={{ maxHeight: "200px" }}
+                style={{width:'300px', height:'200px', borderRadius: '8px', marginTop: '35px' }}
               />
-              <h6>Package Name: {packageDetails.PackageName}</h6>
-              <p>Description: {packageDetails.Description}</p>
-              <p>Duration: {packageDetails.Duration}</p>
-              <p>Vehicle Name: {packageDetails.VehicleName}</p>
-              <p>Vehicle Type: {packageDetails.VehicleType}</p>
-              <p>Cost: {packageDetails.Cost}</p>
+              </div>
+              <div className="package-details" style={{float: 'right', width: '65%', marginLeft: '30px', marginTop: '15px'}}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <h4 style={{ margin: "0", marginRight: "10px" }}>Package:</h4> &ensp;
+                <i> <h5 style={{ margin: "0" }}>{packageDetails.PackageName}</h5> </i>
+              </div>
+              <br/>
+              <p><b>Description:</b>&ensp; {packageDetails.Description}</p>
+              <p><b>Duration:</b>&ensp; {packageDetails.Duration}</p>
+              <p><b>Vehicle Name:</b>&ensp; {packageDetails.VehicleName}</p>
+              <p><b>Vehicle Type:</b>&ensp; {packageDetails.VehicleType}</p>
+              <p><b>Cost:</b>&ensp; {packageDetails.Cost}</p>
+              </div>
+              </div>
               <div className="button-container">
                 <Link
                   to={`/UpdatePackage/${packageDetails._id}`}
@@ -66,7 +75,7 @@ function ManagePackage() {
                   Delete
                 </button>
               </div>
-            </div>
+            </div> 
           </div>
         </div>
       ))}

@@ -12,6 +12,8 @@ const path = require("path")
 
 const UserModel = require('./models/user');
 const PackageModel = require('./models/package')
+const RentalModel = require('./models/rental')
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -97,93 +99,97 @@ app.post('/login', async (req, res) => {
 });
 
 
+//packages backend logic
 const storages = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, "../client/public/images"));
-    },
-    filename: (req, file, cb) => {
-      cb(
-        null,
-        file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-      );
-    },
-  });
-  
-  const uploads = multer({
-    storage: storages,
-  });
-  
-  app.use(
-    "/images",
-    express.static("../client/public/images")
-  );
-  
-  app.post("/Package", uploads.single("file"), async (req, res) => {
-    try {
-      if (!req.file) {
-        throw new Error("No file uploaded.");
-      }
-  
-      const {
-        PackageName,
-        Description,
-        Duration,
-        VehicleName,
-        VehicleType,
-        Cost,
-      } = req.body;
-  
-      const Image = req.file.filename;
-  
-  
-      // Create a new hostel entry in the database
-      const Package = await PackageModel.create({
-        PackageName,
-        Description,
-        Duration,
-        VehicleName,
-        VehicleType,
-        Cost,
-        Image,
-      });
-  
-      res.status(201).json(Package); // Respond with the created hostel data
-    } catch (error) {
-      console.error("Error in Package Add endpoint:", error);
-      res.status(400).json({ error: error.message });
-    }
-  });
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../client/public/images"));
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
 
-  app.get("/ViewPackage", (req, res)=>{
-    PackageModel.find({})
-    .then((viewPackage) => res.json(viewPackage))
-    .catch((err) => res.json(err));
-  })
-  app.get("/ViewPackage/:id", (req, res)=>{
-    const id= req.params.id;
-    PackageModel.findById({_id: id})
-    .then((viewPackage) => res.json(viewPackage))
-    .catch((err) => res.json(err));
-  })
+const uploads = multer({
+  storage: storages,
+});
+
+app.use(
+  "/images",
+  express.static("../client/public/images")
+);
+
+app.post("/Package", uploads.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      throw new Error("No file uploaded.");
+    }
+
+    const {
+      PackageName,
+      Description,
+      Duration,
+      VehicleName,
+      VehicleType,
+      Cost,
+      Recommended,
+    } = req.body;
+
+    const Image = req.file.filename;
+
+
+    // Create a new package entry in the database
+    const Package = await PackageModel.create({
+      PackageName,
+      Description,
+      Duration,
+      VehicleName,
+      VehicleType,
+      Cost,
+      Image,
+      Recommended,
+    });
+
+    res.status(201).json(Package); // Respond with the created package data
+  } catch (error) {
+    console.error("Error in Package Add endpoint:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.get("/ViewPackage", (req, res)=>{
+  PackageModel.find({})
+  .then((viewPackage) => res.json(viewPackage))
+  .catch((err) => res.json(err));
+})
+app.get("/ViewPackage/:id", (req, res)=>{
+  const id= req.params.id;
+  PackageModel.findById({_id: id})
+  .then((viewPackage) => res.json(viewPackage))
+  .catch((err) => res.json(err));
+})
 
 
 
 app.put("/UpdatePackage/:id", (req, res) => {
-  const id = req.params.id;
-  PackageModel.findByIdAndUpdate(
-    { _id: id },
-    {
-      PackageName: req.body.PackageName,
-      Description: req.body.Description,
-      Duration: req.body.Duration,
-      VehicleName: req.body.VehicleName,
-      VehicleType: req.body.VehicleType,
-      Cost: req.body.Cost,
-      Image: req.body.Image,
-    }
-  )
-    .then((UpdatePackage) => res.json(UpdatePackage))
-    .catch((err) => res.json(err));
+const id = req.params.id;
+PackageModel.findByIdAndUpdate(
+  { _id: id },
+  {
+    PackageName: req.body.PackageName,
+    Description: req.body.Description,
+    Duration: req.body.Duration,
+    VehicleName: req.body.VehicleName,
+    VehicleType: req.body.VehicleType,
+    Cost: req.body.Cost,
+    Image: req.body.Image,
+    Recommended: req.body.Recommended,
+  }
+)
+  .then((UpdatePackage) => res.json(UpdatePackage))
+  .catch((err) => res.json(err));
 });
 
 // app.put("/UpdatePackageImg/:id", upload.single("image"), (req, res) => {
@@ -198,6 +204,95 @@ app.put("/UpdatePackage/:id", (req, res) => {
 //     .then((updatedPackage) => res.json(updatedPackage))
 //     .catch((err) => res.status(500).json({ error: err }));
 // });
+
+//rentals backend logic
+const rentalstorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../client/public/images"));
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+
+const rentalupload = multer({
+  storage: rentalstorage,
+});
+
+app.use(
+  "/images",
+  express.static("../client/public/images")
+);
+
+app.post("/Rental", rentalupload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      throw new Error("No file uploaded.");
+    }
+
+    const {
+      VehicleName,
+      Description,
+      SeatingType,
+      VehicleYear,
+      Cost,
+    } = req.body;
+
+    const Image = req.file.filename;
+
+
+    // Create a new hostel entry in the database
+    const Rental = await RentalModel.create({
+      VehicleName,
+      Description,
+      SeatingType,
+      VehicleYear,
+      Cost,
+      Image,
+    });
+
+    res.status(201).json(Rental); // Respond with the created hostel data
+  } catch (error) {
+    console.error("Error in Package Add endpoint:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+app.get("/ViewRentalVehicle", (req, res)=>{
+  RentalModel.find({})
+  .then((ViewRentalVehicle) => res.json(ViewRentalVehicle))
+  .catch((err) => res.json(err));
+})
+
+app.get("/ViewRentalVehicle/:id", (req, res)=>{
+  const id= req.params.id;
+  RentalModel.findById({_id: id})
+  .then((ViewRentalVehicle) => res.json(ViewRentalVehicle))
+  .catch((err) => res.json(err));
+})
+
+app.put("/UpdateRentalVehicle/:id", (req, res) => {
+  const id = req.params.id;
+  RentalModel.findByIdAndUpdate(
+    { _id: id },
+    {
+      VehicleName: req.body.VehicleName,
+      Description: req.body.Description,
+      SeatingType: req.body.SeatingType,
+      VehicleYear: req.body.VehicleYear,
+      Cost: req.body.Cost,
+      Image: req.body.Image,
+    }
+  )
+    .then((UpdateRentalVehicle) => res.json(UpdateRentalVehicle))
+    .catch((err) => res.json(err));
+});
+
+// setting port for the server
 app.listen(3001, () => {
   console.log("Server is Running!!");
 });

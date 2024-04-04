@@ -10,6 +10,10 @@ import AdminPackage from './components/AdminPackage';
 import TourPackages from './components/TourPackages';
 import AdminManagePackage from './components/AdminManagePackages';
 import UpdatePackage from './components/UpdatePackage';
+import AdminVehicleRental from './components/AdminVehicleRental';
+import RentVehicles from './components/RentVehicles';
+import AdminManageRental from './components/AdminManageRentals';
+import UpdateRentalVehicle from './components/UpdateRentalVehicle';
 
 
 
@@ -24,6 +28,10 @@ const App = () => {
         <Route path="/AdminManagePackage" element={<AdminManagePackage />} />
         <Route path="/UpdatePackage/:id" element={<UpdatePackage/>} />
         <Route path="/TourPackages" element={<TourPackages />} />
+        <Route path="/AdminVehicleRental" element={<AdminVehicleRental />} />
+        <Route path="/AdminManageRental" element={<AdminManageRental />} />
+        <Route path="/RentVehicles" element={<RentVehicles />} />
+        <Route path="/UpdateRentalVehicle/:id" element={<UpdateRentalVehicle/>} />
         {/* <Route path="/dashboard" element={<Dashboard/>}/> */}
         <Route path="/home" element={<PrivateRoute />}>
           <Route index element={<HomePage />} />

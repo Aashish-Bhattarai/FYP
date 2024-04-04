@@ -10,6 +10,7 @@ function UpdatePackage() {
   const [VehicleName, setVehicleName] = useState();
   const [VehicleType, setVehicleType] = useState();
   const [Cost, setCost] = useState();
+  const [Recommended, setRecommended] = useState();
 
   // const [file, setFile] = useState([]);
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ function UpdatePackage() {
         setVehicleName(result.data.VehicleName);
         setVehicleType(result.data.VehicleType);
         setCost(result.data.Cost);
+        setRecommended(result.data.Recommended);
       })
       .catch((err) => console.log(err));
   }, [id]);
@@ -40,6 +42,7 @@ function UpdatePackage() {
         VehicleName,
         VehicleType,
         Cost,
+        Recommended,
       })
       .then((result) => {
         console.log(result);
@@ -48,15 +51,39 @@ function UpdatePackage() {
       .catch((err) => console.log(err));
   };
   return (
-    <div>
-      <h2 style={{ color: "maroon", textAlign: "center" }}>Add Packages</h2>
+    <div
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
+        backdropFilter: "blur(8px)",
+        padding: "20px",
+        borderRadius: "8px",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "#4682B4",
+          color: "#fff",
+          textAlign: "center",
+          padding: "10px",
+          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "8px",
+          width: "50%",
+          margin: "auto",
+          marginTop: "50px",
+        }}
+      >
+        <h2 style={{ fontSize: "2rem", fontWeight: "bold", margin: "0" }}>
+          Edit Package:{" "}
+        </h2>
+      </div>
       <form
         onSubmit={Update}
         style={{
           backgroundColor: "#f5f5f5",
           padding: "20px",
-          borderRadius: "8px",
-          marginTop: "20px",
+          borderBottomLeftRadius: "8px",
+          borderBottomRightRadius: "8px",
           marginLeft: "auto",
           marginRight: "auto",
           width: "50%",
@@ -149,8 +176,28 @@ function UpdatePackage() {
             onChange={(e) => setCost(e.target.value)}
           />
         </div>
-        
-        <div style={{ justifyContent: "center", display: "flex" }}>
+        <br />
+        <div className="form-group">
+          <label htmlFor="recommended">
+            <h5>Recommended Activities: </h5>
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="recommended"
+            placeholder="Enter recommended activities separated by commas"
+            value={Recommended}
+            onChange={(e) => setRecommended(e.target.value)}
+          />
+        </div>
+        <br />
+        <div
+          style={{
+            justifyContent: "center",
+            display: "flex",
+            marginTop: "20px",
+          }}
+        >
           <button type="submit" class="btn btn-primary btn-lg">
             Confirm
           </button>

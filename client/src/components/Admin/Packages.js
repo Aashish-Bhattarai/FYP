@@ -9,6 +9,7 @@ function Packages() {
     const [VehicleType, setVehicleType] = useState();
     const [Cost, setCost] = useState();
     const [file, setFile] = useState([]);
+    const [Recommended, setRecommended] = useState('');
  
 const Submit = (e) => {
     e.preventDefault();
@@ -20,6 +21,7 @@ const Submit = (e) => {
     formData.append("VehicleName", VehicleName);
     formData.append("VehicleType", VehicleType);
     formData.append("Cost", Cost);
+    formData.append('Recommended', Recommended); // Add recommended activities to FormData
     formData.append("file", file);
 
     axios
@@ -70,6 +72,11 @@ const Submit = (e) => {
         <div className="form-group">
           <label htmlFor="exampleFormControlInput4"><h5>Cost: </h5></label>
           <input type="number" className="form-control" id="exampleFormControlInput1" placeholder="Enter Specific Package Costing Here.." onChange={(e) => setCost(e.target.value)}/>
+        </div>
+        <br/>
+        <div className="form-group">
+          <label htmlFor="recommended"><h5>Recommended Activities: </h5></label>
+          <input type="text" className="form-control" id="recommended" placeholder="Enter recommended activities separated by commas" value={Recommended} onChange={(e) => setRecommended(e.target.value)} />
         </div>
         <br/>
         <div className="form-group">
