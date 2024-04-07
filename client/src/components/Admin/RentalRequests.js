@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function PackageRequests() {
+function RentalRequests() {
     const [bookings, setBookings] = useState([]);
 
     useEffect(() => {
-        // Fetch booking packages data from the server
-        axios.get('http://localhost:3001/ViewPackageRequest')
+        // Fetch rental booking data from the server
+        axios.get('http://localhost:3001/ViewRentalRequest')
             .then(result => {
                 setBookings(result.data);
             })
             .catch(error => {
-                console.error('Error fetching booking packages:', error);
+                console.error('Error fetching rental requests:', error);
             });
     }, []);
 
@@ -28,7 +28,7 @@ function PackageRequests() {
 
     const handleAcceptBooking = (id) => {
         // Update the status of the booking to "accepted" on the server
-        axios.put("http://localhost:3001/UpdatePackageBookingStatus/" + id, { status: 'Accepted' })
+        axios.put("http://localhost:3001/UpdateRentalBookingStatus/" + id, { status: 'Accepted' })
             .then(response => {
                 console.log('Booking accepted:', response.data);
                 const updatedBookings = bookings.map(booking => {
@@ -46,7 +46,7 @@ function PackageRequests() {
 
     const handleRejectBooking = (id) => {
         // Update the status of the booking to "rejected" on the server
-        axios.put("http://localhost:3001/UpdatePackageBookingStatus/" + id, { status: 'Rejected' })
+        axios.put("http://localhost:3001/UpdateRentalBookingStatus/" + id, { status: 'Rejected' })
             .then(response => {
                 console.log('Booking rejected:', response.data);
                 const updatedBookings = bookings.map(booking => {
@@ -65,16 +65,18 @@ function PackageRequests() {
     return (
         <div className="container mt-4">
             <div style={{ backgroundColor: '#4682B4', color: '#fff', textAlign: 'center', padding: '15px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', marginTop: '30px', width: '100%', margin: 'auto' }}>
-                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>Package Booking Requests</h2>
+                <h2 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>Rental Booking Requests</h2>
             </div>
             <table className="table table-striped">
                 <thead>
                     <tr>
-                        <th>Package Name</th>
+                        <th>Vehicle Name</th>
                         <th>Booked Date</th>
                         <th>Booking Time</th>
-                        <th>People Capacity</th>
-                        <th>Cost</th>
+                        <th>Rented Days</th>
+                        <th>Seating Type</th>
+                        <th>Vehicle Year</th>
+                        <th>Total Cost</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -82,11 +84,13 @@ function PackageRequests() {
                 <tbody>
                     {bookings.map(booking => (
                         <tr key={booking._id}>
-                            <td>{booking.PackageName}</td>
+                            <td>{booking.VehicleName}</td>
                             <td>{formatDate(booking.BookedDate)}</td>
                             <td>{formatDateTime(booking.BookingTime)}</td>
-                            <td>{booking.PeopleCapacity}</td>
-                            <td> Rs. {booking.Cost}</td>
+                            <td> {booking.RentedDays}</td>
+                            <td>{booking.SeatingType}</td>
+                            <td>{booking.VehicleYear}</td>
+                            <td> Rs. {booking.CostTotal}</td>
                             <td>{booking.status}</td>
                             <td>
                                 {booking.status === 'Pending' && (
@@ -110,4 +114,4 @@ function PackageRequests() {
     );
 }
 
-export default PackageRequests;
+export default RentalRequests;

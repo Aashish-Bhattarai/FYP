@@ -15,6 +15,7 @@ import RentVehicles from './components/RentVehicles';
 import AdminManageRental from './components/AdminManageRentals';
 import UpdateRentalVehicle from './components/UpdateRentalVehicle';
 import AdminPackageRequest from './components/AdminPackageRequests';
+import AdminRentalRequest from './components/AdminRentalRequests';
 
 
 const App = () => {
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/TourPackages" element={<TourPackages />} />
         <Route path="/AdminVehicleRental" element={<AdminVehicleRental />} />
         <Route path="/AdminManageRental" element={<AdminManageRental />} />
+        <Route path="/AdminRentalRequest" element={<AdminRentalRequest />} />
         <Route path="/RentVehicles" element={<RentVehicles />} />
         <Route path="/UpdateRentalVehicle/:id" element={<UpdateRentalVehicle/>} />
         {/* <Route path="/dashboard" element={<Dashboard/>}/> */}

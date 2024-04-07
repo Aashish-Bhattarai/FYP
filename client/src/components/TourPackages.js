@@ -59,7 +59,7 @@ function TourPackages() {
     
             axios.post('http://localhost:3001/BookPackage', bookingData)
                 .then(response => {
-                    console.log('Booking Requested:', response.data);
+                    console.log('Booking Package Requested:', response.data);
                     // Optionally, you can show a success message or perform other actions
                 })
                 .catch(error => {

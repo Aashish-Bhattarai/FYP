@@ -17,7 +17,7 @@ const HomePage = () => {
             <br/>
             <div className="button-container">
             <button className="main-btn" onClick={() => navigate("/pick&drop")}>Pick-up and Drop Service</button>
-            <button className="main-btn" >Daily Rental Service</button>
+            <button className="main-btn" onClick={() => navigate("/RentVehicles")}>Daily Rental Service</button>
             <button className="main-btn" onClick={() => navigate("/TourPackages")}>Tour Packages</button>
             </div>
             <Footer/>

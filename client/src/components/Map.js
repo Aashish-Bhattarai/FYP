@@ -17,8 +17,8 @@ const icon = L.icon({
 const position = [27.69625199, 83.46399466];
 
 const nepalBounds = [
-  [26.347, 80.058], // Southwest coordinate of Nepal
-  [30.447, 88.201]  // Northeast coordinate of Nepal
+  [26.347, 80.058], 
+  [30.447, 88.201]  
 ];
 
 function ResetCenterView(props) {
@@ -85,8 +85,8 @@ const degreesToRadians = (degrees) => {
 
 export default function Maps(props) {
   const { pickupPosition, dropPosition, setPickupPosition, setDropPosition } = props;
-  const [pickupSearchText, setPickupSearchText] = useState(pickupPosition?.display_name || ""); // Using optional chaining to safely access pickupPosition.display_name
-  const [dropSearchText, setDropSearchText] = useState(dropPosition?.display_name || ""); // Using optional chaining to safely access dropPosition.display_name
+  const [pickupSearchText, setPickupSearchText] = useState(pickupPosition?.display_name || ""); 
+  const [dropSearchText, setDropSearchText] = useState(dropPosition?.display_name || ""); 
   const [distance, setDistance] = useState(null);
 
   useEffect(() => {
@@ -157,8 +157,7 @@ export default function Maps(props) {
       style={{ height:550 }}
       scrollWheelZoom = {true}
       maxBounds={nepalBounds}
-      maxBoundsViscosity={1.0} // Set the viscosity to enforce strict bounds
-      minZoom={7}
+      maxBoundsViscosity={1.0} 
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

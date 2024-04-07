@@ -14,6 +14,7 @@ const UserModel = require('./models/user');
 const PackageModel = require('./models/package')
 const RentalModel = require('./models/rental')
 const BookingPackage = require('./models/packageBooking')
+const BookingRental = require('./models/rentalBooking')
 
 const app = express();
 app.use(express.json());
@@ -233,7 +234,7 @@ app.get("/ViewPackageRequest", (req, res)=>{
   .catch((err) => res.json(err));
 })
 
-// Update the status of a booking by ID
+// Update the status of a Package Booking by ID
 app.put("/UpdatePackageBookingStatus/:id", async (req, res) => {
   try {
     const id = req.params.id;
@@ -357,6 +358,67 @@ app.put("/UpdateRentalVehicle/:id", (req, res) => {
     .then((UpdateRentalVehicle) => res.json(UpdateRentalVehicle))
     .catch((err) => res.json(err));
 });
+
+app.get("/ViewBookedVehicles/:date", async (req, res) => {
+  try {
+      const selectedDate = req.params.date;
+      const bookedVehicles = await BookingRental.find({ BookedDate: selectedDate });
+      res.json(bookedVehicles);
+  } catch (error) {
+      console.error('Error fetching booked vehicles:', error);
+      res.status(500).json({ error: 'An error occurred while fetching booked vehicles' });
+  }
+});
+
+app.post('/BookRental', async (req, res) => {
+  try {
+      const { VehicleName, BookedDate, BookingTime, RentedDays, SeatingType, VehicleYear, CostTotal, status } = req.body;
+
+      // Create a new BookingPackage instance and save it to the database
+      const bookingRental = await BookingRental.create({
+          VehicleName,
+          BookedDate,
+          BookingTime,
+          RentedDays,
+          SeatingType,
+          VehicleYear, 
+          CostTotal,
+          status
+      });
+
+      console.log('Booking saved successfully:', bookingRental);
+      res.status(200).json({ message: 'Booking saved successfully', bookingRental });
+  } catch (err) {
+      console.error('Error saving booking:', err);
+      res.status(500).json({ error: 'An error occurred while saving the booking' });
+  }
+});
+
+app.get("/ViewRentalRequest", (req, res)=>{
+  BookingRental.find({})
+  .then((viewRentalRequest) => res.json(viewRentalRequest))
+  .catch((err) => res.json(err));
+})
+
+// Update the status of a Package Booking by ID
+app.put("/UpdateRentalBookingStatus/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { status } = req.body;
+
+    const updatedBooking = await BookingRental.findByIdAndUpdate(id, { status });
+
+    if (!updatedBooking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    res.json(updatedBooking);
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    res.status(500).json({ error: 'An error occurred while updating booking status' });
+  }
+});
+
 
 // setting port for the server
 app.listen(3001, () => {
