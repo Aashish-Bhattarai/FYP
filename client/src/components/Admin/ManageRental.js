@@ -42,16 +42,26 @@ function ManageRental() {
         >
           <div className="card-inner row">
             <div className="card-content">
+              <div className="details" style={{display:'flex', position:'relative', backgroundColor: '#e8e8e8', borderRadius: '5px'}}>
+              <div className="rental-details" style={{float: 'left', width: '65%', marginLeft: '20px', marginTop: '15px'}}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+              <h4 style={{ margin: "0", marginRight: "10px" }}>Vehicle Name:</h4> &ensp;
+              <i> <h5 style={{ margin: "0" }}>{rentalDetails.VehicleName}</h5> </i>
+              </div>
+              <br/>
+              <p><b>Description:</b>&ensp; {rentalDetails.Description}</p>
+              <p><b>No. of Seats:</b>&ensp; {rentalDetails.SeatingType}</p>
+              <p><b>Vehicle Make Year:</b>&ensp; {rentalDetails.VehicleYear}</p>
+              <p><b>Cost:</b>&ensp; {rentalDetails.Cost}</p>
+              </div>
+              <div className="rental-image" style={{float: 'right', width: '35%',marginRight: '10px', marginTop: '15px', marginBottom: '40px'}}>
               <img
-                src={`http://localhost:3001/images${rentalDetails.Image}`}
-                className="img-fluid mb-3"
-                style={{ maxHeight: "200px" }}
+                src={`http://localhost:3001/images/${rentalDetails.Image}`}
+                className="img-fluid"
+                style={{width:'300px', height:'220px', borderRadius: '8px'}}
               />
-              <h6>Package Name: {rentalDetails.VehicleName}</h6>
-              <p>Description: {rentalDetails.Description}</p>
-              <p>No. of Seats: {rentalDetails.SeatingType}</p>
-              <p>Vehicle Make Year: {rentalDetails.VehicleYear}</p>
-              <p>Cost: {rentalDetails.Cost}</p>
+              </div>
+              </div>
               <div className="button-container">
                 <Link
                   to={`/UpdateRentalVehicle/${rentalDetails._id}`}

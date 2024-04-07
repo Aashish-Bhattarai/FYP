@@ -33,7 +33,7 @@ const Submit = (e) => {
 }
 
   return (
-    <div style={{ marginBottom: '30px', marginTop: '30px'}}>
+    <div style={{ marginBottom: '30px', marginTop: '30px', height: 'calc(100vh - 100px)', overflow: 'auto'}}>
         <div style={{ backgroundColor: '#4682B4', color: '#fff', textAlign: 'center', padding: '10px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', width: '50%', margin: 'auto' }}>
           <h2 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>Add Package: </h2>
         </div> 

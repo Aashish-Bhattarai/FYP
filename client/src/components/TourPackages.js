@@ -46,6 +46,30 @@ function TourPackages() {
     };
 
     const handleConfirmBooking = () => {
+         
+        if (selectedPackage && selectedDate) {
+            const bookingData = {
+                PackageName: selectedPackage.PackageName,
+                BookedDate: selectedDate,
+                BookingTime: new Date(),
+                PeopleCapacity: selectedPackage.VehicleType,
+                Cost: selectedPackage.Cost,
+                status: 'Pending' // Default status
+            };
+    
+            axios.post('http://localhost:3001/BookPackage', bookingData)
+                .then(response => {
+                    console.log('Booking Requested:', response.data);
+                    // Optionally, you can show a success message or perform other actions
+                })
+                .catch(error => {
+                    console.error('Error confirming booking:', error);
+                    // Handle error scenario
+                });
+        } else {
+            console.error('Please select a package and date before confirming booking.');
+        }
+
         setShowPopup(false);
     };
 
@@ -127,7 +151,7 @@ function TourPackages() {
                     flex-direction: column;
                     align-items: center;
                     justify-content: flex-start;
-                    margin-top: 20px; /* Added margin-top */
+                    margin-top: 20px; 
                 }
 
                 .Cards-View {
@@ -179,11 +203,11 @@ function TourPackages() {
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+                    background-color: rgba(0, 0, 0, 0.5); 
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    z-index: 999; /* Ensure popup is on top of other content */
+                    z-index: 999; 
                 }
 
                 .popup {
@@ -195,7 +219,7 @@ function TourPackages() {
                 }
 
                 .popup-inner {
-                    max-width: 600px; /* Adjust popup width as needed */
+                    max-width: 600px; 
                     text-align: center;
                 }
 

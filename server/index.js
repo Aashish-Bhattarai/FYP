@@ -13,6 +13,7 @@ const path = require("path")
 const UserModel = require('./models/user');
 const PackageModel = require('./models/package')
 const RentalModel = require('./models/rental')
+const BookingPackage = require('./models/packageBooking')
 
 const app = express();
 app.use(express.json());
@@ -171,8 +172,6 @@ app.get("/ViewPackage/:id", (req, res)=>{
   .catch((err) => res.json(err));
 })
 
-
-
 app.put("/UpdatePackage/:id", (req, res) => {
 const id = req.params.id;
 PackageModel.findByIdAndUpdate(
@@ -204,6 +203,73 @@ PackageModel.findByIdAndUpdate(
 //     .then((updatedPackage) => res.json(updatedPackage))
 //     .catch((err) => res.status(500).json({ error: err }));
 // });
+
+// Package Booking Back-End 
+app.post('/BookPackage', async (req, res) => {
+  try {
+      const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status } = req.body;
+
+      // Create a new BookingPackage instance and save it to the database
+      const booking = await BookingPackage.create({
+          PackageName,
+          BookedDate,
+          BookingTime,
+          PeopleCapacity,
+          Cost,
+          status
+      });
+
+      console.log('Booking saved successfully:', booking);
+      res.status(200).json({ message: 'Booking saved successfully', booking });
+  } catch (err) {
+      console.error('Error saving booking:', err);
+      res.status(500).json({ error: 'An error occurred while saving the booking' });
+  }
+});
+
+app.get("/ViewPackageRequest", (req, res)=>{
+  BookingPackage.find({})
+  .then((viewPackageRequest) => res.json(viewPackageRequest))
+  .catch((err) => res.json(err));
+})
+
+// Update the status of a booking by ID
+app.put("/UpdatePackageBookingStatus/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { status } = req.body;
+
+    const updatedBooking = await BookingPackage.findByIdAndUpdate(id, { status });
+
+    if (!updatedBooking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    res.json(updatedBooking);
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    res.status(500).json({ error: 'An error occurred while updating booking status' });
+  }
+});
+
+// app.put("/UpdatePackage/:id", (req, res) => {
+//   const id = req.params.id;
+//   PackageModel.findByIdAndUpdate(
+//     { _id: id },
+//     {
+//       PackageName: req.body.PackageName,
+//       Description: req.body.Description,
+//       Duration: req.body.Duration,
+//       VehicleName: req.body.VehicleName,
+//       VehicleType: req.body.VehicleType,
+//       Cost: req.body.Cost,
+//       Image: req.body.Image,
+//       Recommended: req.body.Recommended,
+//     }
+//   )
+//     .then((UpdatePackage) => res.json(UpdatePackage))
+//     .catch((err) => res.json(err));
+//   });
 
 //rentals backend logic
 const rentalstorage = multer.diskStorage({
@@ -244,7 +310,7 @@ app.post("/Rental", rentalupload.single("file"), async (req, res) => {
     const Image = req.file.filename;
 
 
-    // Create a new hostel entry in the database
+    // Create a new vehicle entry in the database
     const Rental = await RentalModel.create({
       VehicleName,
       Description,
@@ -254,7 +320,7 @@ app.post("/Rental", rentalupload.single("file"), async (req, res) => {
       Image,
     });
 
-    res.status(201).json(Rental); // Respond with the created hostel data
+    res.status(201).json(Rental); // Respond with the created vehicle data
   } catch (error) {
     console.error("Error in Package Add endpoint:", error);
     res.status(400).json({ error: error.message });
