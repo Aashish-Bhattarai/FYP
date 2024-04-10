@@ -16,7 +16,12 @@ import AdminManageRental from './components/AdminManageRentals';
 import UpdateRentalVehicle from './components/UpdateRentalVehicle';
 import AdminPackageRequest from './components/AdminPackageRequests';
 import AdminRentalRequest from './components/AdminRentalRequests';
-
+import AdminAddDriver from './components/AdminAddDriver';
+import DriverPDRequests from './components/DriverPDRequests';
+import DriverProfile from './components/DriverProfile';
+import DriverHistory from './components/DriverHistory';
+import UserProfile from './components/UserProfile';
+import UserHistory from './components/UserHistory';
 
 const App = () => {
   return (
@@ -35,6 +40,12 @@ const App = () => {
         <Route path="/AdminRentalRequest" element={<AdminRentalRequest />} />
         <Route path="/RentVehicles" element={<RentVehicles />} />
         <Route path="/UpdateRentalVehicle/:id" element={<UpdateRentalVehicle/>} />
+        <Route path="/AdminAddDriver" element={<AdminAddDriver />} />
+        <Route path="/PDRequests" element={<DriverPDRequests />} />
+        <Route path="/DriverProfile" element={<DriverProfile />} />
+        <Route path="/DriverHistory" element={<DriverHistory />} />
+        <Route path="/UserProfile" element={<UserProfile />} />
+        <Route path="/UserHistory" element={<UserHistory />} />
         {/* <Route path="/dashboard" element={<Dashboard/>}/> */}
         <Route path="/home" element={<PrivateRoute />}>
           <Route index element={<HomePage />} />

@@ -5,12 +5,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import NavBar from './Nav';
+import Footer from './Footer';
 
-function RentVehicles({vehicle}) {
+function RentVehicles() {
     const [rental, setRental] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
-    const [selectedDate, setSelectedDate] = useState(new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000)); // mindate is allowed to be selected is selected initially
+    const [selectedDate, setSelectedDate] = useState(new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000));
     const [selectedDays, setSelectedDays] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredRental, setFilteredRental] = useState([]);
@@ -22,31 +24,35 @@ function RentVehicles({vehicle}) {
             .then((result) => {
                 setRental(result.data);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+            });
     }, []);
 
-    // Fetch booked vehicles for the selected date from the server
     useEffect(() => {
-        axios.get(`http://localhost:3001/ViewBookedVehicles/${selectedDate}`)
+        axios.get(`http://localhost:3001/ViewBookedVehicles`)
             .then(result => {
                 setBookedVehicles(result.data);
             })
             .catch(error => {
                 console.error('Error fetching booked vehicles:', error);
             });
-    }, [selectedDate]);
+    }, []);
 
-    // Filter rental vehicles based on their availability
     useEffect(() => {
-        const filtered = rental.filter(vehicle =>
-            !bookedVehicles.some(bookedVehicle => bookedVehicle.VehicleName === vehicle.VehicleName)
-        );
+        const currentDate = new Date();
+        const filtered = rental.filter(vehicle => {
+            const isBooked = bookedVehicles.some(bookedVehicle => 
+                bookedVehicle.VehicleName === vehicle.VehicleName && 
+                (currentDate < new Date(bookedVehicle.BookingEndDate) || currentDate >= new Date(bookedVehicle.BookingStartDate)) &&
+                bookedVehicle.status !== 'Rejected'
+            );
+            return !isBooked;
+        });
         setFilteredRental(filtered);
-    }, [rental, bookedVehicles]);
-
+    }, [rental, bookedVehicles]); 
 
     useEffect(() => {
-        // Filter rental vehicles whenever searchQuery changes
         const filteredList = rental.filter(vehicle =>
             vehicle.VehicleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
             vehicle.SeatingType.toLowerCase().includes(searchQuery.toLowerCase())
@@ -55,8 +61,17 @@ function RentVehicles({vehicle}) {
     }, [searchQuery, rental]);
 
     const handleBookNow = (vehicle) => {
-        setSelectedVehicle(vehicle);
-        setShowPopup(true);
+        const isBooked = bookedVehicles.some(bookedVehicle =>
+            bookedVehicle.VehicleName === vehicle.VehicleName &&
+            (new Date() < new Date(bookedVehicle.BookingEndDate) || new Date() >= new Date(bookedVehicle.BookingStartDate)) &&
+            bookedVehicle.status !== 'Rejected'
+        );
+        if (!isBooked) {
+            setSelectedVehicle(vehicle);
+            setShowPopup(true);
+        } else {
+            alert("This vehicle is already booked.");
+        }
     };
 
     const handleDateChange = (date) => {
@@ -71,14 +86,12 @@ function RentVehicles({vehicle}) {
 
     const totalCost = (vehicle, selectedDays) => {
         if (vehicle) {
-            const TotalCost = selectedDays * vehicle.Cost;
-            return TotalCost;
+            return selectedDays * vehicle.Cost;
         }
         return 0;
     }
 
     const handleConfirmBooking = () => {
-
         if (selectedVehicle && selectedDate && selectedDays){
             const bookingData = {
                 VehicleName: selectedVehicle.VehicleName,
@@ -88,36 +101,35 @@ function RentVehicles({vehicle}) {
                 SeatingType: selectedVehicle.SeatingType,
                 VehicleYear: selectedVehicle.VehicleYear,
                 CostTotal: totalCost(selectedVehicle, selectedDays),
-                status: 'Pending' // Default status
+                status: 'Pending'
             };
     
             axios.post('http://localhost:3001/BookRental', bookingData)
                 .then(response => {
                     console.log('Rental Booking Requested:', response.data);
-                    // Optionally, you can show a success message or perform other actions
+                    // Filter out the booked vehicle from the filteredRental state
+                    const updatedFilteredRental = filteredRental.filter(item => item !== selectedVehicle);
+                    setFilteredRental(updatedFilteredRental);
                 })
                 .catch(error => {
                     console.error('Error confirming booking:', error);
-                    // Handle error scenario
                 });
         } else {
             console.error('Please select a package and date before confirming booking.');
         }
-
-        // Removing the booked vehicle from the rental list
-        const updatedRental = rental.filter(item => item !== selectedVehicle);
-        setRental(updatedRental);
-
+    
         setShowPopup(false);
         setSelectedVehicle(null); 
         setSelectedDays(1);
     };
+    
 
     return (
         <main className="main-container">
+            <NavBar/>
             <style>{`
                 .package-container {
-                    max-height: calc(100vh - 100px);
+                    max-height: calc(100vh - 150px);
                     overflow-y: auto;
                     display: flex;
                     flex-direction: column;
@@ -125,7 +137,7 @@ function RentVehicles({vehicle}) {
                     justify-content: flex-start;
                     margin-top: 20px; 
                 }
-    
+
                 .card {
                     margin-top: 50px;
                     padding: 20px;
@@ -134,19 +146,36 @@ function RentVehicles({vehicle}) {
                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                     width: 60%; 
                 }
-    
+
                 .card-content {
-                    flex: 1;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
                 }
-    
+
+                .details {
+                    width: 65%;
+                }
+
+                .rental-image {
+                    width: 35%;
+                }
+
+                .rental-image img {
+                    width: 100%;
+                    height: auto;
+                    border-radius: 8px;
+                }
+
                 .card-buttons {
                     display: flex;
                     justify-content: flex-end;
                     align-items: center;
+                    margin-top: 20px;
                 }
-    
+
                 .btn {
-                    padding: 8px 16px;
+                    padding: 10px 20px;
                     font-size: 16px;
                     border: none;
                     border-radius: 5px;
@@ -154,7 +183,7 @@ function RentVehicles({vehicle}) {
                     color: #fff;
                     cursor: pointer;
                 }
-    
+
                 .btn:hover {
                     background-color: #0056b3;
                 }
@@ -185,30 +214,8 @@ function RentVehicles({vehicle}) {
                     text-align: center;
                 }
 
-                .close-btn {
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    font-size: 24px; 
-                    color: #333; 
-                    transition: color 0.3s, text-shadow 0.3s; 
-                }
-
-                .close-btn:hover {
-                    color: red; 
-                    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); 
-                }
-
                 .date-time-picker {
                     margin-bottom: 20px;
-                }
-
-                /* Hide scrollbar when popup is open */
-                body.popup-open {
-                    overflow: hidden;
                 }
             `}</style>
             <div className="package-container">
@@ -222,7 +229,6 @@ function RentVehicles({vehicle}) {
                         textShadow: '1px 1px 2px rgba(0, 0, 0, 0.7)', 
                         borderBottom: '3px solid #293642', 
                         paddingBottom: '10px' }}>Discover Your Ride: Explore Now</h2> <br/>
-                {/* Add search input field */}
                 <input
                     type="text"
                     placeholder="Search by Vehicle Name or No. of Seats"
@@ -233,81 +239,77 @@ function RentVehicles({vehicle}) {
                         fontSize: '16px',
                         borderRadius: '5px',
                         border: '1px solid #ccc',
-                        width: '30%',
+                        width: '20%',
                         marginBottom: '20px'
                     }}
                 />
                 {filteredRental.map((rentalDetails, index) => (
                     <div className="card" key={index}>
                         <div className="card-content">
-                            <div className="details" style={{display:'flex', position:'relative', backgroundColor: '#e8e8e8', borderRadius: '5px'}}>
-                                <div className="rental-details" style={{float: 'left', width: '65%', marginLeft: '20px', marginTop: '15px'}}>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <h4 style={{ margin: "0", marginRight: "10px" }}>Vehicle Name:</h4> &ensp;
-                                        <i> <h5 style={{ margin: "0" }}>{rentalDetails.VehicleName}</h5> </i>
-                                    </div>
-                                    <br/>
-                                    <p><b>Description:</b>&ensp; {rentalDetails.Description}</p>
-                                    <p><b>No. of Seats:</b>&ensp; {rentalDetails.SeatingType}</p>
-                                    <p><b>Vehicle Make Year:</b>&ensp; {rentalDetails.VehicleYear}</p>
-                                    <p><b>Cost:</b>&ensp; {rentalDetails.Cost}</p>
-                                </div>
-                                <div className="rental-image" style={{float: 'right', width: '35%', marginTop: '15px', marginBottom: '40px'}}>
-                                    <img
-                                        src={`http://localhost:3001/images/${rentalDetails.Image}`}
-                                        className="img-fluid"
-                                        style={{width:'300px', height:'220px', borderRadius: '8px'}}
-                                    />
-                                </div>
+                            <div className="details" style={{marginLeft: '25px'}}>
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                                <h4 style={{ margin: "0", marginRight: "10px" }}>Vehicle Name:</h4> &ensp;
+                                <i> <h5 style={{ margin: "0" }}>{rentalDetails.VehicleName}</h5> </i>
+                            </div>
+                            <br/>
+                            <p><b>Description:</b>&ensp; {rentalDetails.Description}</p>
+                            <p><b>No. of Seats:</b>&ensp; {rentalDetails.SeatingType}</p>
+                            <p><b>Vehicle Make Year:</b>&ensp; {rentalDetails.VehicleYear}</p>
+                            <p><b>Cost:</b>&ensp; {rentalDetails.Cost} <i>per day</i></p>
+                            </div>
+                            <div className="rental-image" style={{float: 'right', width: '35%',marginRight: '10px', marginTop: '15px', marginBottom: '30px'}}>
+                            <img
+                                src={`http://localhost:3001/images/${rentalDetails.Image}`}
+                                className="img-fluid"
+                                alt={rentalDetails.VehicleName}
+                                style={{width:'300px', height:'220px', borderRadius: '8px'}}
+                            />
                             </div>
                         </div>
-                        <div className="card-buttons" style={{marginTop:'30px'}}>
-                            <button className="btn btn-primary" style={{padding:'10px', paddingLeft:'20px', paddingRight:'20px', marginRight:'30px', marginBottom:'8px', fontSize:'20px'}} onClick={() => handleBookNow(rentalDetails)}>Book Now</button>
+                        <div className="card-buttons" style={{marginTop:'10px'}}>
+                            <button
+                                className="btn btn-primary"
+                                style ={{padding:'10px', paddingLeft:'20px', paddingRight:'20px', marginRight:'30px', marginBottom:'8px', fontSize:'20px'}}
+                                onClick={() => handleBookNow(rentalDetails)}
+                                disabled={bookedVehicles.some(bookedVehicle => 
+                                    bookedVehicle.VehicleName === rentalDetails.VehicleName &&
+                                    (new Date() < new Date(bookedVehicle.BookingEndDate) || new Date() >= new Date(bookedVehicle.BookingStartDate))&&
+                                    bookedVehicle.status !== 'Rejected'
+                                )}
+                            >
+                                Book Now
+                            </button> 
+                        </div>
+                        <div>
+                            {bookedVehicles.some(bookedVehicle => 
+                                bookedVehicle.VehicleName === rentalDetails.VehicleName &&
+                                (new Date() < new Date(bookedVehicle.BookingEndDate) || new Date() >= new Date(bookedVehicle.BookingStartDate))&&
+                                bookedVehicle.status !== 'Rejected'
+                            ) ? (
+                                <p style={{ color: 'red' }}>This vehicle is already booked and will be available on {new Date(bookedVehicles.find(bookedVehicle => 
+                                    bookedVehicle.VehicleName === rentalDetails.VehicleName &&
+                                    (new Date() < new Date(bookedVehicle.BookingEndDate) || new Date() >= new Date(bookedVehicle.BookingStartDate))&&
+                                    bookedVehicle.status !== 'Rejected'
+                                ).BookingEndDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.</p>
+                            ) : null}
                         </div>
                     </div>
                 ))}
-                {selectedVehicle && (
-                    <div className="card">
-                        <div className="card-content">
-                            {/* Your card content for selected vehicle here */}
-                            <div className="details" style={{display:'flex', position:'relative', backgroundColor: '#e8e8e8', borderRadius: '5px'}}>
-                                <div className="rental-details" style={{float: 'left', width: '65%', marginLeft: '20px', marginTop: '15px'}}>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <h4 style={{ margin: "0", marginRight: "10px" }}>Vehicle Name:</h4> &ensp;
-                                        <i> <h5 style={{ margin: "0" }}>{selectedVehicle.VehicleName}</h5> </i>
-                                    </div>
-                                    <br/>
-                                    <p><b>Description:</b>&ensp; {selectedVehicle.Description}</p>
-                                    <p><b>No. of Seats:</b>&ensp; {selectedVehicle.SeatingType}</p>
-                                    <p><b>Vehicle Make Year:</b>&ensp; {selectedVehicle.VehicleYear}</p>
-                                    <p><b>Cost:</b>&ensp; {selectedVehicle.Cost}</p>
-                                </div>
-                                <div className="rental-image" style={{float: 'right', width: '35%', marginTop: '15px', marginBottom: '40px'}}>
-                                    <img
-                                        src={`http://localhost:3001/images/${selectedVehicle.Image}`}
-                                        className="img-fluid"
-                                        style={{width:'300px', height:'220px', borderRadius: '8px'}}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
-            {/* Popup code */}
             {showPopup && (
                 <div className="popup-overlay">
                     <div className="popup">
                         <div className="popup-inner">
                             <h2>Confirmation:</h2>
                             <div className="date-time-picker">
+                                <p style={{ color: 'red', marginTop: '5px' }}>Note: You can only book 1 day earlier for now.</p>
                                 <FontAwesomeIcon icon={faCalendar} /> : &ensp;
                                 <DatePicker
                                     selected={selectedDate}
                                     placeholderText='select date here..'
                                     onChange={handleDateChange}
-                                    minDate={new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000)} // Minimum date is 1 days after current date
-                                    maxDate={new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)} // Maximum date is 7 days from the current date
+                                    minDate={new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000)}
+                                    maxDate={new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000)}
                                     dateFormat="MMMM d, yyyy"
                                     className="form-control"
                                 />
@@ -331,7 +333,7 @@ function RentVehicles({vehicle}) {
                                 )}
                             </div>
                             <div className="container">
-                                <button className="btn btn-primary" onClick={handleConfirmBooking} disabled={selectedDays > 30 || selectedDays < 1}>Confirm Booking</button>
+                                <button className="btn btn-primary" onClick={handleConfirmBooking} disabled={isNaN(selectedDays) || selectedDays > 30 || selectedDays < 1}>Confirm Booking </button>
                                 <button
                                     style={{ 
                                         backgroundColor: '#6c757d',
@@ -356,6 +358,7 @@ function RentVehicles({vehicle}) {
                     </div>
                 </div>
             )}
+           <Footer/> 
         </main>
     );
 }

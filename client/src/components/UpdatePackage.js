@@ -20,7 +20,7 @@ function UpdatePackage() {
     axios
       .get("http://localhost:3001/ViewPackage/" + id)
       .then((result) => {
-        console.log("hey", result);
+        console.log("result", result);
         setPackageName(result.data.PackageName);
         setDescription(result.data.Description);
         setDuration(result.data.Duration);

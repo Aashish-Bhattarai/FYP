@@ -26,9 +26,9 @@ export default function DropSearchBox(props) {
     setSearchText(DropSearchText || ''); // Update searchText when DropSearchText changes
   }, [DropSearchText]);
 
-  useEffect(() => {
-    console.log("searchText :", searchText); // Log searchText for debugging
-  }, [searchText]);
+  // useEffect(() => {
+  //   console.log("searchText :", searchText); // Log searchText for debugging
+  // }, [searchText]);
 
 
 

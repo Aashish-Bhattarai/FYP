@@ -166,6 +166,7 @@ app.get("/ViewPackage", (req, res)=>{
   .then((viewPackage) => res.json(viewPackage))
   .catch((err) => res.json(err));
 })
+
 app.get("/ViewPackage/:id", (req, res)=>{
   const id= req.params.id;
   PackageModel.findById({_id: id})
@@ -359,17 +360,6 @@ app.put("/UpdateRentalVehicle/:id", (req, res) => {
     .catch((err) => res.json(err));
 });
 
-app.get("/ViewBookedVehicles/:date", async (req, res) => {
-  try {
-      const selectedDate = req.params.date;
-      const bookedVehicles = await BookingRental.find({ BookedDate: selectedDate });
-      res.json(bookedVehicles);
-  } catch (error) {
-      console.error('Error fetching booked vehicles:', error);
-      res.status(500).json({ error: 'An error occurred while fetching booked vehicles' });
-  }
-});
-
 app.post('/BookRental', async (req, res) => {
   try {
       const { VehicleName, BookedDate, BookingTime, RentedDays, SeatingType, VehicleYear, CostTotal, status } = req.body;
@@ -391,6 +381,23 @@ app.post('/BookRental', async (req, res) => {
   } catch (err) {
       console.error('Error saving booking:', err);
       res.status(500).json({ error: 'An error occurred while saving the booking' });
+  }
+});
+
+app.get("/ViewBookedVehicles", async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const bookedVehicles = await BookingRental.find({});
+    const filteredBookedVehicles = bookedVehicles.map(vehicle => ({
+      VehicleName: vehicle.VehicleName,
+      BookedDate: vehicle.BookedDate,
+      BookingEndDate: new Date(vehicle.BookedDate.getTime() + (vehicle.RentedDays + 1) * 24 * 60 * 60 * 1000), // Calculate booking end date with maintenance day
+      status: vehicle.status
+    })).filter(vehicle => currentDate < vehicle.BookingEndDate); // Filter out vehicles whose booking has not expired
+    res.json(filteredBookedVehicles);
+  } catch (error) {
+    console.error('Error fetching booked vehicles:', error);
+    res.status(500).json({ error: 'An error occurred while fetching booked vehicles' });
   }
 });
 
@@ -419,6 +426,33 @@ app.put("/UpdateRentalBookingStatus/:id", async (req, res) => {
   }
 });
 
+
+//user profile endpoint i.e. userprofile backend logic
+// app.get('/userprofile', authenticateToken, async (req, res) => {
+//   try {
+//       const userId = req.user.id;
+
+//       // Find user data based on the user ID
+//       const user = await UserModel.findById(userId);
+
+//       if (!user) {
+//           return res.status(404).json({ message: 'User not found' });
+//       }
+
+//       // If user found, send user data as response
+//       res.status(200).json(user);
+//   } catch (error) {
+//       console.error('Error fetching user profile:', error);
+//       res.status(500).json({ message: 'Internal Server Error' });
+//   }
+// });
+
+app.get("/userprofile/:id", (req, res) => {
+  const id = req.params.id;
+  UserModel.findById(id) // Use id directly, as it represents the user's ID
+    .then((userprofile) => res.json(userprofile))
+    .catch((err) => res.json(err));
+});
 
 // setting port for the server
 app.listen(3001, () => {

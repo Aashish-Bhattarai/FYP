@@ -5,6 +5,12 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import NavBar from './Nav';
+import Footer from './Footer';
+
+
+
+
 function TourPackages() {
     const [pkg, setPkg] = useState([]);
     const [refresh, setRefresh] = useState(false);
@@ -143,9 +149,10 @@ function TourPackages() {
 
     return (
         <main className="main-container">
+            <NavBar/>
             <style>{`
                 .package-container {
-                    max-height: calc(100vh - 100px);
+                    max-height: calc(100vh - 75px);
                     overflow-y: auto;
                     display: flex;
                     flex-direction: column;
@@ -392,6 +399,7 @@ function TourPackages() {
                     </div>
                 </div>
             )}
+            <Footer/>
         </main>
     );
 }

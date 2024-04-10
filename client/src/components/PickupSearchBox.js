@@ -25,9 +25,9 @@ export default function PickupSearchBox(props) {
     setSearchText(pickupSearchText || ''); // Update searchText when pickupSearchText changes
   }, [pickupSearchText]);
 
-  useEffect(() => {
-    console.log("searchText :", searchText); // Log searchText for debugging
-  }, [searchText]);
+  // useEffect(() => {
+  //   console.log("searchText :", searchText); // Log searchText for debugging
+  // }, [searchText]);
 
 
   useEffect(() => {

@@ -1,38 +1,48 @@
 // PickupAndDropService.js
 import React, { useState, useEffect } from 'react';
-import Nav from './Nav';
 import Footer from './Footer';
-import './PickupAndDropService.css';
 import DateTime from './DateTime';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import Maps from './Map';
 import PickupSearchBox from './PickupSearchBox';
 import DropSearchBox from './DropSearchBox';
+import NavBar from './Nav';
 
 const PickupAndDropService = (props) => {
 
   const [pickupPosition, setPickupPosition] = useState(null);
   const [dropPosition, setDropPosition] = useState(null);
-  const {distance} = props;
+  const { distance } = props;
 
-  // const [cost, setCost] = useState(null);
+  console.log("Distance in PD: ", distance)
 
-  // useEffect(() => {
-  //   // Calculate cost if distance is provided
-  //   if (distance !== null) {
-  //     const calculatedCost = distance * 200;
-  //     setCost(calculatedCost);
-  //   }
-  // }, [distance]);
+  const leftSideStyle = {
+    flex: 1,
+    padding: '20px',
+    margin: '7% 3%',
+    border: '1px solid #ccc', /* Add borders for visibility */
+    width: '500px',
+    borderRadius: '15px',
+    marginRight: '3%',
+  };
 
-  // console.log("distance: ", distance)
+  const rightSideStyle = {
+    flex: 1,
+    padding: '20px',
+    margin: '7% 3%',
+    border: '1px solid #ccc', /* Add borders for visibility */
+    height: '600px',
+    width: '500px',
+    borderRadius: '15px',
+    marginLeft: '3%',
+  };
 
   return (
     <>
-      <Nav />
+      <NavBar />
       <div className="pickup-drop-container">
-        <div className='left-side'>
+        <div className='left-side' style={leftSideStyle}>
           <u><h1>Pickup & Drop Service:</h1></u>
           &nbsp;
           <div className='text'>
@@ -41,30 +51,67 @@ const PickupAndDropService = (props) => {
               &emsp; <DateTime /> <br />
             </div>
             <div className='Pick-up'>
-            <b><p style={{ fontSize: '21px' }}>Pick-Up Location &nbsp;<FontAwesomeIcon icon={faMapLocationDot} /> :</p></b>
-             <PickupSearchBox selectPosition={pickupPosition} setSelectPosition={setPickupPosition}/>
+              <b><p style={{ fontSize: '21px' }}>Pick-Up Location &nbsp;<FontAwesomeIcon icon={faMapLocationDot} /> :</p></b>
+              <PickupSearchBox selectPosition={pickupPosition} setSelectPosition={setPickupPosition}/>
             </div>
             <div className='Drop'>
-            <b><p style={{ fontSize: '21px' }}>Drop Location &nbsp;<FontAwesomeIcon icon={faMapLocationDot} /> :</p></b>
-            <DropSearchBox selectPosition={dropPosition} setSelectPosition={setDropPosition}/>
+              <b><p style={{ fontSize: '21px' }}>Drop Location &nbsp;<FontAwesomeIcon icon={faMapLocationDot} /> :</p></b>
+              <DropSearchBox selectPosition={dropPosition} setSelectPosition={setDropPosition}/>
             </div>
-            {/* {distance !== null && (
-              <div>
-                <p><b>Distance to travel:</b> {distance} km</p>
-                <p><b>Cost:</b> NPR {cost}</p>
-              </div>
-            )} */}
+            <p> Distance: {distance} Km</p>
           </div>
           <button className='confirmation'> Confirm </button>
         </div>
-        <div className='right-side'>
-          <Maps pickupPosition = {pickupPosition} dropPosition = {dropPosition} setPickupPosition = {setPickupPosition} setDropPosition = {setDropPosition} />
+        <div className='right-side' style={rightSideStyle}>
+          <Maps pickupPosition={pickupPosition} dropPosition={dropPosition} setPickupPosition={setPickupPosition} setDropPosition={setDropPosition} />
         </div>
       </div>
       <Footer />
+      <style>
+        {`
+          .pickup-drop-container {
+              display: flex;
+          }
+          
+          .left-side h1, 
+          .right-side h1 {
+              text-align: center;
+          }
+          
+          .DateTime {
+              display: inline-flex;
+          }
+          
+          .Pick-up {
+              margin-top: 30px;
+          }
+          
+          .left-side p, 
+          .right-side p {
+              margin-left: 20px;
+          }
+          
+          .confirmation {
+              width: 180px;
+              height: 40px;
+              font-size: 18px;
+              border-radius: 5px;
+              margin-left: 35%;
+              margin-top: 30px;
+              transition: 0.3s;
+              position: relative;
+          }
+          
+          .confirmation:hover {
+              background-color: #66ab68;
+              box-shadow: 0 0 10px rgba(102, 171, 104, 0.8);
+              border-color: #66ab68;
+              color: #fff;
+          }
+        `}
+      </style>
     </>
   );
 }
 
 export default PickupAndDropService;
-

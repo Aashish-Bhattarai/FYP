@@ -41,9 +41,13 @@ function Sidebar() {
                     <i className='bi bi-house fs-5 me-3'></i>
                     <span>Vehicle Rental Requests</span>
                 </Link>
-                <Link to="/products" className='list-group-item py-2'>
+                <Link to="/AdminAddDriver" className='list-group-item py-2'>
                     <i className='bi bi-table fs-5 me-3'></i>
-                    <span>Driver</span>
+                    <span>Add Driver</span>
+                </Link>
+                <Link to="/AdminManageDriver" className='list-group-item py-2'>
+                    <i className='bi bi-table fs-5 me-3'></i>
+                    <span>Manage Driver</span>
                 </Link>
                 <Link to="/report" className='list-group-item py-2'>
                     <i className='bi bi-clipboard-data fs-5 me-3'></i>

@@ -1,13 +1,12 @@
 // Maps.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import PickupSearchBox from "./PickupSearchBox";
 import DropSearchBox from "./DropSearchBox";
 import PickupAndDropService from "./PickupAndDropService";
-// import "leaflet-routing-machine";
-// import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
 
 const icon = L.icon({
   iconUrl: "./pin marker.png",
@@ -61,49 +60,37 @@ const degreesToRadians = (degrees) => {
   return degrees * (Math.PI / 180);
 };
 
-// function RoutingPickupDrop ( pickupPosition, dropPosition) {
-
-//   const map = useMap();
-
-//   useEffect(() => {
-//     if (pickupPosition && dropPosition && map) {
-//       const routingControl = L.Routing.control({
-//         waypoints: [
-//           L.latLng(pickupPosition.lat, pickupPosition.lon),
-//           L.latLng(dropPosition.lat, dropPosition.lon)
-//         ], 
-//         routeWhileDragging: true
-//       }).addTo(map);
-  
-//       return () => map.removeControl(routingControl);
-//     }
-    
-//   }, [map, pickupPosition, dropPosition])
-
-//   return null;
-// }
 
 export default function Maps(props) {
   const { pickupPosition, dropPosition, setPickupPosition, setDropPosition } = props;
   const [pickupSearchText, setPickupSearchText] = useState(pickupPosition?.display_name || ""); 
   const [dropSearchText, setDropSearchText] = useState(dropPosition?.display_name || ""); 
   const [distance, setDistance] = useState(null);
+  const distanceLogged = useRef(false); // Ref to track if distance has been logged
+
 
   useEffect(() => {
     if (pickupPosition && dropPosition) {
       const newDistance = calculateDistance(pickupPosition.lat, pickupPosition.lon, dropPosition.lat, dropPosition.lon);
       setDistance(newDistance);
+      distanceLogged.current = false; // Reset distanceLogged when distance updates
     }
   }, [pickupPosition, dropPosition]);
 
-  console.log("distance between points:", distance)
-
+  // Log distance only if it's updated and not already logged
+  useEffect(() => {
+    if (distance !== null && !distanceLogged.current) {
+      console.log("distance between points:", distance);
+      distanceLogged.current = true; // Set distanceLogged to true after logging
+    }
+  }, [distance]);
 
   const handleDragEndPickup = async (event) => {
     const newPosition = event.target.getLatLng();
     console.log("New pickup position:", newPosition);
   
     try {
+      // Reverse geocode to get the display name
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${newPosition.lat}&lon=${newPosition.lng}&format=json`);
       const data = await response.json();
       console.log("Response from reverse geocoding API:", data);
@@ -111,24 +98,30 @@ export default function Maps(props) {
       const displayName = data.display_name;
       console.log("New pickup display name:", displayName);
   
+      // Update pickup position and display name
       setPickupPosition({
         lat: newPosition.lat,
         lon: newPosition.lng,
         display_name: displayName
       });
-
-      setPickupSearchText(displayName);
-      
+  
+      // Recalculate distance
+      recalculateDistance({
+        lat: newPosition.lat,
+        lon: newPosition.lng
+      }, dropPosition);
+  
     } catch (error) {
       console.error("Error fetching reverse geocoding data:", error);
     }
   };
-
+  
   const handleDragEndDrop = async (event) => {
     const newPosition = event.target.getLatLng();
     console.log("New drop position:", newPosition);
   
     try {
+      // Reverse geocode to get the display name
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${newPosition.lat}&lon=${newPosition.lng}&format=json`);
       const data = await response.json();
       console.log("Response from reverse geocoding API:", data);
@@ -136,17 +129,27 @@ export default function Maps(props) {
       const displayName = data.display_name;
       console.log("New drop display name:", displayName);
   
+      // Update drop position and display name
       setDropPosition({
         lat: newPosition.lat,
         lon: newPosition.lng,
         display_name: displayName
       });
-
-      setDropSearchText(displayName);
-
+  
+      // Recalculate distance
+      recalculateDistance(pickupPosition, {
+        lat: newPosition.lat,
+        lon: newPosition.lng
+      });
+  
     } catch (error) {
       console.error("Error fetching reverse geocoding data:", error);
     }
+  };
+
+  const recalculateDistance = (pickupPosition, dropPosition) => {
+    const newDistance = calculateDistance(pickupPosition.lat, pickupPosition.lon, dropPosition.lat, dropPosition.lon);
+    setDistance(newDistance);
   };
 
   
@@ -217,3 +220,31 @@ export default function Maps(props) {
     </MapContainer> 
   );
 }
+
+
+
+// import "leaflet-routing-machine";
+// import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
+
+// function RoutingPickupDrop ( pickupPosition, dropPosition) {
+
+//   const map = useMap();
+
+//   useEffect(() => {
+//     if (pickupPosition && dropPosition && map) {
+//       const routingControl = L.Routing.control({
+//         waypoints: [
+//           L.latLng(pickupPosition.lat, pickupPosition.lon),
+//           L.latLng(dropPosition.lat, dropPosition.lon)
+//         ], 
+//         routeWhileDragging: true
+//       }).addTo(map);
+  
+//       return () => map.removeControl(routingControl);
+//     }
+    
+//   }, [map, pickupPosition, dropPosition])
+
+//   return null;
+// }
