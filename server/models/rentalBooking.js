@@ -9,7 +9,8 @@ const bookingRentalSchema = new mongoose.Schema({
     SeatingType: String,
     VehicleYear: String,
     CostTotal: Number,
-    status: String
+    status: String,
+    userId: mongoose.Schema.Types.ObjectId // Defining mongoose built-in _id/userId as ObjectId
 });
 
 // Create a model from the schema

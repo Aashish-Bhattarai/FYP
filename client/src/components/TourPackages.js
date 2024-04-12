@@ -54,13 +54,20 @@ function TourPackages() {
     const handleConfirmBooking = () => {
          
         if (selectedPackage && selectedDate) {
+            
+            const token = localStorage.getItem('token');
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            const userId = decodedToken.id;
+            console.log('id: ', userId)
+
             const bookingData = {
                 PackageName: selectedPackage.PackageName,
                 BookedDate: selectedDate,
                 BookingTime: new Date(),
                 PeopleCapacity: selectedPackage.VehicleType,
                 Cost: selectedPackage.Cost,
-                status: 'Pending' // Default status
+                status: 'Pending', // Default status
+                userId: userId
             };
     
             axios.post('http://localhost:3001/BookPackage', bookingData)

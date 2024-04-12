@@ -7,7 +7,8 @@ const bookingPackageSchema = new mongoose.Schema({
     BookingTime: Date,
     PeopleCapacity: String,
     Cost: Number,
-    status: String
+    status: String,
+    userId: mongoose.Schema.Types.ObjectId // Defining mongoose built-in _id/userId as ObjectId
 });
 
 // Create a model from the schema

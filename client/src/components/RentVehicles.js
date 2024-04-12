@@ -93,6 +93,12 @@ function RentVehicles() {
 
     const handleConfirmBooking = () => {
         if (selectedVehicle && selectedDate && selectedDays){
+
+            const token = localStorage.getItem('token');
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            const userId = decodedToken.id;
+            console.log('id: ', userId)
+
             const bookingData = {
                 VehicleName: selectedVehicle.VehicleName,
                 BookedDate: selectedDate,
@@ -101,7 +107,8 @@ function RentVehicles() {
                 SeatingType: selectedVehicle.SeatingType,
                 VehicleYear: selectedVehicle.VehicleYear,
                 CostTotal: totalCost(selectedVehicle, selectedDays),
-                status: 'Pending'
+                status: 'Pending',
+                userId: userId
             };
     
             axios.post('http://localhost:3001/BookRental', bookingData)
@@ -129,7 +136,7 @@ function RentVehicles() {
             <NavBar/>
             <style>{`
                 .package-container {
-                    max-height: calc(100vh - 150px);
+                    max-height: calc(100vh - 160px);
                     overflow-y: auto;
                     display: flex;
                     flex-direction: column;

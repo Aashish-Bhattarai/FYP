@@ -209,7 +209,7 @@ PackageModel.findByIdAndUpdate(
 // Package Booking Back-End 
 app.post('/BookPackage', async (req, res) => {
   try {
-      const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status } = req.body;
+      const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status, userId } = req.body;
 
       // Create a new BookingPackage instance and save it to the database
       const booking = await BookingPackage.create({
@@ -218,7 +218,8 @@ app.post('/BookPackage', async (req, res) => {
           BookingTime,
           PeopleCapacity,
           Cost,
-          status
+          status,
+          userId
       });
 
       console.log('Booking saved successfully:', booking);
@@ -362,7 +363,7 @@ app.put("/UpdateRentalVehicle/:id", (req, res) => {
 
 app.post('/BookRental', async (req, res) => {
   try {
-      const { VehicleName, BookedDate, BookingTime, RentedDays, SeatingType, VehicleYear, CostTotal, status } = req.body;
+      const { VehicleName, BookedDate, BookingTime, RentedDays, SeatingType, VehicleYear, CostTotal, status, userId } = req.body;
 
       // Create a new BookingPackage instance and save it to the database
       const bookingRental = await BookingRental.create({
@@ -373,7 +374,8 @@ app.post('/BookRental', async (req, res) => {
           SeatingType,
           VehicleYear, 
           CostTotal,
-          status
+          status,
+          userId
       });
 
       console.log('Booking saved successfully:', bookingRental);
@@ -447,12 +449,92 @@ app.put("/UpdateRentalBookingStatus/:id", async (req, res) => {
 //   }
 // });
 
+
+// user specific profile with profile edit and change password endpoints
 app.get("/userprofile/:id", (req, res) => {
   const id = req.params.id;
   UserModel.findById(id) // Use id directly, as it represents the user's ID
     .then((userprofile) => res.json(userprofile))
     .catch((err) => res.json(err));
 });
+
+// Update user profile
+app.put("/userprofile/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updatedUserData = req.body;
+
+    const updatedUser = await UserModel.findByIdAndUpdate(id, updatedUserData, { new: true });
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ message: "Error updating user profile", error: err });
+  }
+});
+
+// Check if current password matches
+app.post("/userprofile/:id/checkpassword", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { password } = req.body;
+
+    const user = await UserModel.findById(id);
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    res.json({ isValid: isValidPassword });
+  } catch (err) {
+    res.status(500).json({ isValid: false, message: "Error checking password", error: err });
+  }
+});
+
+// Change user password
+app.put("/userprofile/:id/changepassword", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { newPassword } = req.body;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await UserModel.findByIdAndUpdate(id, { password: hashedPassword });
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating password", error: err });
+  }
+});
+
+
+// app.post('/signup', async (req, res) => {
+//   const { name, email, phone, password } = req.body;
+
+//   try {
+//       const hashedPassword = await bcrypt.hash(password, 10); // 10 is the saltRounds
+//       const user = await UserModel.create({ name, email, phone, password: hashedPassword });
+//       res.json(user);
+//   } catch (err) {
+//       res.status(500).json({ message: 'Internal Server Error' });
+//   }
+// });
+
+// User History
+
+//user package service history
+
+app.get("/UserPackageHistory/:userId", (req, res) => {
+  const userId = req.params.userId;
+  BookingPackage.find({ userId }) // Find all bookings with the specified userId
+    .then((UserPackageHistory) => res.json(UserPackageHistory))
+    .catch((err) => res.json(err));
+});
+
+//user rental service history
+
+app.get("/UserRentalHistory/:userId", (req, res) => {
+  const userId = req.params.userId;
+  BookingRental.find({ userId }) // Find all bookings with the specified userId
+    .then((UserRentalHistory) => res.json(UserRentalHistory))
+    .catch((err) => res.json(err));
+});
+
+
 
 // setting port for the server
 app.listen(3001, () => {

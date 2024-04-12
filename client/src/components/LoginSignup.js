@@ -90,6 +90,7 @@ const LoginSignup = () => {
                     timer: 1500
                     
                  });
+                 setPasswordStrength('');
             }
             
         } catch (err) {
