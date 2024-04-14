@@ -157,7 +157,7 @@ export default function Maps(props) {
     <MapContainer
       center={position}
       zoom={13}
-      style={{ height:550 }}
+      style={{ height: 550, zIndex: 1 }}
       scrollWheelZoom = {true}
       maxBounds={nepalBounds}
       maxBoundsViscosity={1.0} 

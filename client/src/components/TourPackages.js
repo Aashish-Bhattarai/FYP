@@ -52,39 +52,51 @@ function TourPackages() {
     };
 
     const handleConfirmBooking = () => {
-         
-        if (selectedPackage && selectedDate) {
-            
-            const token = localStorage.getItem('token');
-            const decodedToken = JSON.parse(atob(token.split('.')[1]));
-            const userId = decodedToken.id;
-            console.log('id: ', userId)
-
-            const bookingData = {
-                PackageName: selectedPackage.PackageName,
-                BookedDate: selectedDate,
-                BookingTime: new Date(),
-                PeopleCapacity: selectedPackage.VehicleType,
-                Cost: selectedPackage.Cost,
-                status: 'Pending', // Default status
-                userId: userId
-            };
+        // Fetch userId from token
+        const token = localStorage.getItem('token');
+        if (token) {
+            const userId = JSON.parse(atob(token.split('.')[1])).id;
     
-            axios.post('http://localhost:3001/BookPackage', bookingData)
-                .then(response => {
-                    console.log('Booking Package Requested:', response.data);
-                    // Optionally, you can show a success message or perform other actions
+            // Fetch user details using userId
+            axios.get(`http://localhost:3001/users/getUser/${userId}`)
+                .then(userResponse => {
+                    const { name, email } = userResponse.data;
+    
+                    // Include user's name and email in the booking data
+                    const bookingData = {
+                        PackageName: selectedPackage.PackageName,
+                        BookedDate: selectedDate,
+                        BookingTime: new Date(),
+                        PeopleCapacity: selectedPackage.VehicleType,
+                        Cost: selectedPackage.Cost,
+                        status: 'Pending', // Default status
+                        userId: userId,
+                        userName: name, // Include user name
+                        userEmail: email // Include user email
+                    };
+    
+                    // Post booking data to the server
+                    axios.post('http://localhost:3001/BookPackage', bookingData)
+                        .then(response => {
+                            console.log('Booking Package Requested:', response.data);
+                            // Optionally, you can show a success message or perform other actions
+                        })
+                        .catch(error => {
+                            console.error('Error confirming booking:', error);
+                            // Handle error scenario
+                        });
                 })
                 .catch(error => {
-                    console.error('Error confirming booking:', error);
+                    console.error('Error fetching user details:', error);
                     // Handle error scenario
                 });
         } else {
-            console.error('Please select a package and date before confirming booking.');
+            console.error('User token not found in local storage.');
         }
-
+    
         setShowPopup(false);
     };
+    
 
     const handleDateChange = (date) => {
         setSelectedDate(date);

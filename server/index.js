@@ -1,5 +1,6 @@
 //index.js
 const express = require("express");
+const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
@@ -207,9 +208,46 @@ PackageModel.findByIdAndUpdate(
 // });
 
 // Package Booking Back-End 
+
+// Defining route to fetch user details based on userId when a user books a package
+app.get('/users/getUser/:userId', async (req, res) => {
+  try {
+      const userId = req.params.userId;
+      const user = await UserModel.findById(userId);
+      res.status(200).json(user);
+  } catch (error) {
+      console.error('Error fetching user details:', error);
+      res.status(500).json({ error: 'An error occurred while fetching user details' });
+  }
+});
+
+// app.post('/BookPackage', async (req, res) => {
+//   try {
+//       const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status, userId } = req.body;
+
+//       // Create a new BookingPackage instance and save it to the database
+//       const booking = await BookingPackage.create({
+//           PackageName,
+//           BookedDate,
+//           BookingTime,
+//           PeopleCapacity,
+//           Cost,
+//           status,
+//           userId
+//       });
+
+//       console.log('Booking saved successfully:', booking);
+//       res.status(200).json({ message: 'Booking saved successfully', booking });
+//   } catch (err) {
+//       console.error('Error saving booking:', err);
+//       res.status(500).json({ error: 'An error occurred while saving the booking' });
+//   }
+// });
+
+// Package Booking Back-End 
 app.post('/BookPackage', async (req, res) => {
   try {
-      const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status, userId } = req.body;
+      const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status, userId, userName, userEmail } = req.body;
 
       // Create a new BookingPackage instance and save it to the database
       const booking = await BookingPackage.create({
@@ -219,7 +257,9 @@ app.post('/BookPackage', async (req, res) => {
           PeopleCapacity,
           Cost,
           status,
-          userId
+          userId,
+          userName, // Store user name
+          userEmail // Store user email
       });
 
       console.log('Booking saved successfully:', booking);
@@ -534,7 +574,38 @@ app.get("/UserRentalHistory/:userId", (req, res) => {
     .catch((err) => res.json(err));
 });
 
+// Define a route to send emails
+app.post('/sendEmail', (req, res) => {
+  const { recipient, subject, body } = req.body;
 
+  // Create a transporter object using nodemailer
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user: 'bhattaraiaashish100@gmail.com',
+          pass: 'kqde bnmo daxm bjhh'
+      }
+  });
+
+  // Define the mail options
+  const mailOptions = {
+      from: 'bhattaraiaashish100@gmail.com',
+      to: recipient, // Get recipient email address from the request body
+      subject: subject,
+      text: body
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          console.error('Error sending email:', error);
+          res.status(500).json({ message: 'Error sending email' });
+      } else {
+          console.log('Email sent:', info.response);
+          res.status(200).json({ message: 'Email sent successfully' });
+      }
+  });
+});
 
 // setting port for the server
 app.listen(3001, () => {

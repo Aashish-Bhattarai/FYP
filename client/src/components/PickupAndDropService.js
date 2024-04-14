@@ -15,9 +15,7 @@ const PickupAndDropService = (props) => {
   const [dropPosition, setDropPosition] = useState(null);
   const { distance } = props;
 
-  const dd = distance;
-
-  console.log("Distance in PD: ", dd)
+  console.log("distance is: ", distance)
 
   const leftSideStyle = {
     flex: 1,
@@ -60,7 +58,7 @@ const PickupAndDropService = (props) => {
               <b><p style={{ fontSize: '21px' }}>Drop Location &nbsp;<FontAwesomeIcon icon={faMapLocationDot} /> :</p></b>
               <DropSearchBox selectPosition={dropPosition} setSelectPosition={setDropPosition}/>
             </div>
-            <p> Distance: {dd} Km</p>
+            <p> Distance: {distance} Km</p>
           </div>
           <button className='confirmation'> Confirm </button>
         </div>

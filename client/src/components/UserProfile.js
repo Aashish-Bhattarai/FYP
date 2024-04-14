@@ -192,7 +192,7 @@ function UserProfile() {
           )}
         </div>
       ) : (
-        <p>Loading...</p>
+        <p style= {{textAlign: 'center', marginTop: '25px', fontSize: '22px'}}>Loading...</p>
       )}
       <Footer />
     </>
