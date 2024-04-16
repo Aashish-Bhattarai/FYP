@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import PickupSearchBox from "./PickupSearchBox";
 import DropSearchBox from "./DropSearchBox";
-import PickupAndDropService from "./PickupAndDropService";
+
 
 
 const icon = L.icon({
@@ -65,33 +65,51 @@ export default function Maps(props) {
   const { pickupPosition, dropPosition, setPickupPosition, setDropPosition } = props;
   const [pickupSearchText, setPickupSearchText] = useState(pickupPosition?.display_name || ""); 
   const [dropSearchText, setDropSearchText] = useState(dropPosition?.display_name || ""); 
-  const [distance, setDistance] = useState(null);
+  
   const distanceLogged = useRef(false); // Ref to track if distance has been logged
 
 
   useEffect(() => {
     if (pickupPosition && dropPosition) {
       const newDistance = calculateDistance(pickupPosition.lat, pickupPosition.lon, dropPosition.lat, dropPosition.lon);
-      setDistance(newDistance);
+      props.setDistance(newDistance);
       distanceLogged.current = false; // Reset distanceLogged when distance updates
     }
-  }, [pickupPosition, dropPosition]);
+  }, [props, pickupPosition, dropPosition]);
 
   // Log distance only if it's updated and not already logged
   useEffect(() => {
-    if (distance !== null && !distanceLogged.current) {
-      console.log("distance between points:", distance);
+    if (props.distance !== null && !distanceLogged.current) {
+      console.log("distance between points:", props.distance);
       distanceLogged.current = true; // Set distanceLogged to true after logging
     }
-  }, [distance]);
+  }, [props.distance]);
 
   const handleDragEndPickup = async (event) => {
     const newPosition = event.target.getLatLng();
     console.log("New pickup position:", newPosition);
   
+    // Calculate distance between new position and original pickup position
+    const distance = calculateDistance(
+      newPosition.lat,
+      newPosition.lng,
+      pickupPosition.lat,
+      pickupPosition.lon
+    );
+  
+    // If the distance exceeds 500m, snap the marker back to the original position
+    if (distance > 0.5) {
+      event.target.setLatLng([pickupPosition.lat, pickupPosition.lon]);
+      console.log("Pickup marker snapped back to original position.");
+      return;
+    }
+  
+    // Proceed with updating pickup position if within the limit
     try {
       // Reverse geocode to get the display name
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${newPosition.lat}&lon=${newPosition.lng}&format=json`);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${newPosition.lat}&lon=${newPosition.lng}&format=json`
+      );
       const data = await response.json();
       console.log("Response from reverse geocoding API:", data);
   
@@ -102,15 +120,17 @@ export default function Maps(props) {
       setPickupPosition({
         lat: newPosition.lat,
         lon: newPosition.lng,
-        display_name: displayName
+        display_name: displayName,
       });
   
       // Recalculate distance
-      recalculateDistance({
-        lat: newPosition.lat,
-        lon: newPosition.lng
-      }, dropPosition);
-  
+      recalculateDistance(
+        {
+          lat: newPosition.lat,
+          lon: newPosition.lng,
+        },
+        dropPosition
+      );
     } catch (error) {
       console.error("Error fetching reverse geocoding data:", error);
     }
@@ -120,9 +140,27 @@ export default function Maps(props) {
     const newPosition = event.target.getLatLng();
     console.log("New drop position:", newPosition);
   
+    // Calculate distance between new position and original drop position
+    const distance = calculateDistance(
+      newPosition.lat,
+      newPosition.lng,
+      dropPosition.lat,
+      dropPosition.lon
+    );
+  
+    // If the distance exceeds 500m, snap the marker back to the original position
+    if (distance > 0.5) {
+      event.target.setLatLng([dropPosition.lat, dropPosition.lon]);
+      console.log("Drop marker snapped back to original position.");
+      return;
+    }
+  
+    // Proceed with updating drop position if within the limit
     try {
       // Reverse geocode to get the display name
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${newPosition.lat}&lon=${newPosition.lng}&format=json`);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${newPosition.lat}&lon=${newPosition.lng}&format=json`
+      );
       const data = await response.json();
       console.log("Response from reverse geocoding API:", data);
   
@@ -133,15 +171,14 @@ export default function Maps(props) {
       setDropPosition({
         lat: newPosition.lat,
         lon: newPosition.lng,
-        display_name: displayName
+        display_name: displayName,
       });
   
       // Recalculate distance
       recalculateDistance(pickupPosition, {
         lat: newPosition.lat,
-        lon: newPosition.lng
+        lon: newPosition.lng,
       });
-  
     } catch (error) {
       console.error("Error fetching reverse geocoding data:", error);
     }
@@ -149,7 +186,7 @@ export default function Maps(props) {
 
   const recalculateDistance = (pickupPosition, dropPosition) => {
     const newDistance = calculateDistance(pickupPosition.lat, pickupPosition.lon, dropPosition.lat, dropPosition.lon);
-    setDistance(newDistance);
+    props.setDistance(newDistance);
   };
 
   
@@ -216,7 +253,7 @@ export default function Maps(props) {
         dropSearchText={dropSearchText} 
         setDropSearchText={setDropSearchText} 
       />
-      {distance !== null && <PickupAndDropService distance={distance} />}
+      {/* {distance !== null && <PickupAndDropService distance={distance} />} */}
     </MapContainer> 
   );
 }

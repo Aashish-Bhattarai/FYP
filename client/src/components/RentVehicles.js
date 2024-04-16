@@ -92,43 +92,52 @@ function RentVehicles() {
     }
 
     const handleConfirmBooking = () => {
-        if (selectedVehicle && selectedDate && selectedDays){
-
+        if (selectedVehicle && selectedDate && selectedDays) {
             const token = localStorage.getItem('token');
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const userId = decodedToken.id;
-            console.log('id: ', userId)
-
-            const bookingData = {
-                VehicleName: selectedVehicle.VehicleName,
-                BookedDate: selectedDate,
-                BookingTime: new Date(),
-                RentedDays: selectedDays,
-                SeatingType: selectedVehicle.SeatingType,
-                VehicleYear: selectedVehicle.VehicleYear,
-                CostTotal: totalCost(selectedVehicle, selectedDays),
-                status: 'Pending',
-                userId: userId
-            };
     
-            axios.post('http://localhost:3001/BookRental', bookingData)
-                .then(response => {
-                    console.log('Rental Booking Requested:', response.data);
-                    // Filter out the booked vehicle from the filteredRental state
-                    const updatedFilteredRental = filteredRental.filter(item => item !== selectedVehicle);
-                    setFilteredRental(updatedFilteredRental);
+            // Fetch user details using userId
+            axios.get(`http://localhost:3001/users/getUser/${userId}`)
+                .then(userResponse => {
+                    const { name, email, phone } = userResponse.data;
+    
+                    const bookingData = {
+                        VehicleName: selectedVehicle.VehicleName,
+                        BookedDate: selectedDate,
+                        BookingTime: new Date(),
+                        RentedDays: selectedDays,
+                        SeatingType: selectedVehicle.SeatingType,
+                        VehicleYear: selectedVehicle.VehicleYear,
+                        CostTotal: totalCost(selectedVehicle, selectedDays),
+                        status: 'Pending',
+                        userId: userId,
+                        userName: name,
+                        userEmail: email,
+                        userPhone: phone
+                    };
+    
+                    axios.post('http://localhost:3001/BookRental', bookingData)
+                        .then(response => {
+                            console.log('Rental Booking Requested:', response.data);
+                            const updatedFilteredRental = filteredRental.filter(item => item !== selectedVehicle);
+                            setFilteredRental(updatedFilteredRental);
+                        })
+                        .catch(error => {
+                            console.error('Error confirming booking:', error);
+                        });
                 })
                 .catch(error => {
-                    console.error('Error confirming booking:', error);
+                    console.error('Error fetching user details:', error);
                 });
         } else {
-            console.error('Please select a package and date before confirming booking.');
+            console.error('Please select a vehicle, date, and rental duration before confirming booking.');
         }
     
         setShowPopup(false);
-        setSelectedVehicle(null); 
+        setSelectedVehicle(null);
         setSelectedDays(1);
-    };
+    };    
     
 
     return (

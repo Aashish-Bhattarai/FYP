@@ -26,7 +26,7 @@ function PackageRequests() {
         return new Date(dateTimeString).toLocaleString('en-US', options);
     };
 
-    const handleAcceptBooking = (id, userEmail) => {
+    const handleAcceptBooking = (id, userEmail, userName, PackageName) => {
         // Update the status of the booking to "accepted" on the server
         axios.put(`http://localhost:3001/UpdatePackageBookingStatus/${id}`, { status: 'Accepted' })
             .then(response => {
@@ -39,15 +39,15 @@ function PackageRequests() {
                 });
                 setBookings(updatedBookings);
 
-                // Send email to the recipient
-                sendEmail(userEmail, 'Booking Accepted', 'Your booking has been accepted.');
+                // Send email to the user
+                sendEmail(userEmail, 'Booking Accepted!!', ` Dear ${userName},\n\n Your booking for the Package ${PackageName} has been accepted.\n We will shortly contact you for providing additional information.\n Please feel free to contact us regarding any urgent queries. \n \n Thankyou, Have a Good Day!!\n-YatraSathi`);
             })
             .catch(error => {
                 console.error('Error accepting booking:', error);
             });
     };
 
-    const handleRejectBooking = (id, userEmail) => {
+    const handleRejectBooking = (id, userEmail, userName, PackageName) => {
         // Update the status of the booking to "rejected" on the server
         axios.put(`http://localhost:3001/UpdatePackageBookingStatus/${id}`, { status: 'Rejected' })
             .then(response => {
@@ -60,8 +60,8 @@ function PackageRequests() {
                 });
                 setBookings(updatedBookings);
 
-                // Send email to the recipient
-                sendEmail(userEmail, 'Booking Rejected', 'Your booking has been rejected.');
+                // Send email to the user
+                sendEmail(userEmail, 'Booking Rejected!!', ` Dear ${userName},\n\n Your booking for the Package ${PackageName} has been rejected.\n Sorry for the inconvenience created.\n Please feel free to contact us regarding any queries. \n \n Thankyou, Have a Good Day!!\n-YatraSathi`);
             })
             .catch(error => {
                 console.error('Error rejecting booking:', error);
@@ -87,13 +87,14 @@ function PackageRequests() {
                 <thead>
                     <tr>
                         <th>Package Name</th>
-                        <th>&emsp;User Name</th>
+                        <th>User Name</th>
+                        <th>Contact</th>
                         <th>Booked Date</th>
-                        <th>&emsp;&emsp;Booking Time</th>
+                        <th>Booking Time</th>
                         <th>People Capacity</th>
                         <th>Cost</th>
                         <th>Status</th>
-                        <th>&emsp;&emsp;&emsp;&emsp;Action</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -101,6 +102,7 @@ function PackageRequests() {
                         <tr key={booking._id}>
                             <td>{booking.PackageName}</td>
                             <td>{booking.userName}</td>
+                            <td>{booking.userPhone}</td>
                             <td>{formatDate(booking.BookedDate)}</td>
                             <td>{formatDateTime(booking.BookingTime)}</td>
                             <td>{booking.PeopleCapacity}</td>
@@ -109,8 +111,8 @@ function PackageRequests() {
                             <td>
                                 {booking.status === 'Pending' && (
                                     <>
-                                        <button className="btn btn-primary" onClick={() => handleAcceptBooking(booking._id, booking.userEmail, booking.PackageName)}>Accept</button> &ensp;
-                                        <button className="btn btn-danger ml-2" onClick={() => handleRejectBooking(booking._id, booking.userEmail, booking.PackageName)}>Reject</button>
+                                        <button className="btn btn-primary" onClick={() => handleAcceptBooking(booking._id, booking.userEmail, booking.userName, booking.PackageName)}>Accept</button>&ensp;
+                                        <button className="btn btn-danger ml-2" onClick={() => handleRejectBooking(booking._id, booking.userEmail, booking.userName, booking.PackageName)}>Reject</button>
                                     </>
                                 )}
                                 {booking.status === 'Accepted' && (

@@ -26,7 +26,7 @@ function RentalRequests() {
         return new Date(dateTimeString).toLocaleString('en-US', options);
     };
 
-    const handleAcceptBooking = (id) => {
+    const handleAcceptBooking = (id, userEmail, userName, VehicleName) => {
         // Update the status of the booking to "accepted" on the server
         axios.put("http://localhost:3001/UpdateRentalBookingStatus/" + id, { status: 'Accepted' })
             .then(response => {
@@ -38,13 +38,16 @@ function RentalRequests() {
                     return booking;
                 });
                 setBookings(updatedBookings);
+
+                // Send email to the user
+                sendEmail(userEmail, 'Booking Accepted!!', ` Dear ${userName},\n\n Your booking for the Vehicle, ${VehicleName} has been accepted.\n We will shortly contact you for providing additional information.\n Please feel free to contact us regarding any urgent queries. \n \n Thankyou, Have a Good Day!!\n-YatraSathi`);
             })
             .catch(error => {
                 console.error('Error accepting booking:', error);
             });
     };
 
-    const handleRejectBooking = (id) => {
+    const handleRejectBooking = (id, userEmail, userName, VehicleName) => {
         // Update the status of the booking to "rejected" on the server
         axios.put("http://localhost:3001/UpdateRentalBookingStatus/" + id, { status: 'Rejected' })
             .then(response => {
@@ -56,9 +59,22 @@ function RentalRequests() {
                     return booking;
                 });
                 setBookings(updatedBookings);
+
+                // Send email to the user
+                sendEmail(userEmail, 'Booking Rejected!!', ` Dear ${userName},\n\n Your booking for the Vehicle, ${VehicleName} has been rejected.\n Sorry for the inconvenience created.\n Please feel free to contact us regarding any queries. \n \n Thankyou, Have a Good Day!!\n-YatraSathi`);
             })
             .catch(error => {
                 console.error('Error rejecting booking:', error);
+            });
+    };
+
+    const sendEmail = (userEmail, subject, body) => {
+        axios.post('http://localhost:3001/sendEmail', { recipient: userEmail, subject, body })
+            .then(response => {
+                console.log('Email sent:', response.data);
+            })
+            .catch(error => {
+                console.error('Error sending email:', error);
             });
     };
 
@@ -71,11 +87,12 @@ function RentalRequests() {
                 <thead>
                     <tr>
                         <th>Vehicle Name</th>
+                        <th>User Name</th>
+                        <th>Contact</th>
                         <th>Booked Date</th>
                         <th>Booking Time</th>
                         <th>Rented Days</th>
-                        <th>Seating Type</th>
-                        <th>Vehicle Year</th>
+                        <th>Make Year</th>
                         <th>Total Cost</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -85,18 +102,19 @@ function RentalRequests() {
                     {bookings.map(booking => (
                         <tr key={booking._id}>
                             <td>{booking.VehicleName}</td>
+                            <td>{booking.userName}</td>
+                            <td>{booking.userPhone}</td>
                             <td>{formatDate(booking.BookedDate)}</td>
                             <td>{formatDateTime(booking.BookingTime)}</td>
                             <td> {booking.RentedDays}</td>
-                            <td>{booking.SeatingType}</td>
                             <td>{booking.VehicleYear}</td>
                             <td> Rs. {booking.CostTotal}</td>
                             <td>{booking.status}</td>
                             <td>
                                 {booking.status === 'Pending' && (
                                     <>
-                                        <button className="btn btn-primary" onClick={() => handleAcceptBooking(booking._id)}>Accept</button> &ensp;
-                                        <button className="btn btn-danger ml-2" onClick={() => handleRejectBooking(booking._id)}>Reject</button>
+                                        <button className="btn btn-primary" onClick={() => handleAcceptBooking(booking._id, booking.userEmail, booking.userName, booking.VehicleName)}>Accept</button> &ensp;
+                                        <button className="btn btn-danger ml-2" onClick={() => handleRejectBooking(booking._id, booking.userEmail, booking.userName, booking.VehicleName)}>Reject</button>
                                     </>
                                 )}
                                 {booking.status === 'Accepted' && (

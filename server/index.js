@@ -16,6 +16,7 @@ const PackageModel = require('./models/package')
 const RentalModel = require('./models/rental')
 const BookingPackage = require('./models/packageBooking')
 const BookingRental = require('./models/rentalBooking')
+const PickupDropModel = require('./models/pickupDropBooking')
 
 const app = express();
 app.use(express.json());
@@ -207,9 +208,8 @@ PackageModel.findByIdAndUpdate(
 //     .catch((err) => res.status(500).json({ error: err }));
 // });
 
-// Package Booking Back-End 
 
-// Defining route to fetch user details based on userId when a user books a package
+// Defining route to fetch user details based on userId when a user books any service
 app.get('/users/getUser/:userId', async (req, res) => {
   try {
       const userId = req.params.userId;
@@ -221,33 +221,11 @@ app.get('/users/getUser/:userId', async (req, res) => {
   }
 });
 
-// app.post('/BookPackage', async (req, res) => {
-//   try {
-//       const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status, userId } = req.body;
-
-//       // Create a new BookingPackage instance and save it to the database
-//       const booking = await BookingPackage.create({
-//           PackageName,
-//           BookedDate,
-//           BookingTime,
-//           PeopleCapacity,
-//           Cost,
-//           status,
-//           userId
-//       });
-
-//       console.log('Booking saved successfully:', booking);
-//       res.status(200).json({ message: 'Booking saved successfully', booking });
-//   } catch (err) {
-//       console.error('Error saving booking:', err);
-//       res.status(500).json({ error: 'An error occurred while saving the booking' });
-//   }
-// });
 
 // Package Booking Back-End 
 app.post('/BookPackage', async (req, res) => {
   try {
-      const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status, userId, userName, userEmail } = req.body;
+      const { PackageName, BookedDate, BookingTime, PeopleCapacity, Cost, status, userId, userName, userEmail, userPhone } = req.body;
 
       // Create a new BookingPackage instance and save it to the database
       const booking = await BookingPackage.create({
@@ -258,8 +236,9 @@ app.post('/BookPackage', async (req, res) => {
           Cost,
           status,
           userId,
-          userName, // Store user name
-          userEmail // Store user email
+          userName, 
+          userEmail, 
+          userPhone
       });
 
       console.log('Booking saved successfully:', booking);
@@ -403,7 +382,7 @@ app.put("/UpdateRentalVehicle/:id", (req, res) => {
 
 app.post('/BookRental', async (req, res) => {
   try {
-      const { VehicleName, BookedDate, BookingTime, RentedDays, SeatingType, VehicleYear, CostTotal, status, userId } = req.body;
+      const { VehicleName, BookedDate, BookingTime, RentedDays, SeatingType, VehicleYear, CostTotal, status, userId, userName, userEmail, userPhone } = req.body;
 
       // Create a new BookingPackage instance and save it to the database
       const bookingRental = await BookingRental.create({
@@ -415,7 +394,10 @@ app.post('/BookRental', async (req, res) => {
           VehicleYear, 
           CostTotal,
           status,
-          userId
+          userId,
+          userName,
+          userEmail,
+          userPhone
       });
 
       console.log('Booking saved successfully:', bookingRental);
@@ -468,26 +450,109 @@ app.put("/UpdateRentalBookingStatus/:id", async (req, res) => {
   }
 });
 
+//Pickup and Drop Backend Logic
+app.post('/BookPickupDrop', async (req, res) => {
+  try {
+    const { BookedDateAndTime, BookingTime, PickupLocation, DropLocation, Distance, Cost, userId, userName, userEmail, userPhone, status, IsCompleted } = req.body;
 
-//user profile endpoint i.e. userprofile backend logic
-// app.get('/userprofile', authenticateToken, async (req, res) => {
-//   try {
-//       const userId = req.user.id;
+    // Create a new PickupDrop instance and save it to the database
+    const pickupDrop = await PickupDropModel.create({
+      BookedDateAndTime,
+      BookingTime,
+      PickupLocation,
+      DropLocation,
+      Distance,
+      Cost,
+      userId,
+      userName,
+      userEmail,
+      userPhone,
+      status,
+      IsCompleted
+    });
 
-//       // Find user data based on the user ID
-//       const user = await UserModel.findById(userId);
+    console.log('Pickup and Drop Booking saved successfully:', pickupDrop);
+    res.status(200).json({ message: 'Pickup and Drop Booking saved successfully', pickupDrop });
+  } catch (err) {
+    console.error('Error saving Pickup and Drop booking:', err);
+    res.status(500).json({ error: 'An error occurred while saving the Pickup and Drop booking' });
+  }
+});
 
-//       if (!user) {
-//           return res.status(404).json({ message: 'User not found' });
-//       }
 
-//       // If user found, send user data as response
-//       res.status(200).json(user);
-//   } catch (error) {
-//       console.error('Error fetching user profile:', error);
-//       res.status(500).json({ message: 'Internal Server Error' });
-//   }
-// });
+//Driver Side
+// Endpoint to fetch pickup and drop requests with status 'Pending'
+app.get('/pickup-drop-requests', async (req, res) => {
+  try {
+    const request = await PickupDropModel.find({ status: 'Pending' });
+    res.status(200).json(request);
+  } catch (error) {
+    console.error('Error fetching pickup and drop requests:', error);
+    res.status(500).json({ error: 'An error occurred while fetching pickup and drop requests' });
+  }
+});
+
+
+//Endpoint to populate the PickupDropModel with Driver Info
+app.post('/accepted-pickup-drop-request/:id', async (req, res) => {
+  try {
+    const requestId = req.params.id;
+    const { DriverId, DriverName, DriverPhone } = req.body;
+
+    // Find the request by ID and update the fields
+    const updatedRequest = await PickupDropModel.findByIdAndUpdate(
+      requestId,
+      {
+        $set: {
+          DriverId,
+          DriverName,
+          DriverPhone,
+          status: 'Accepted'
+        }
+      },
+      { new: true }
+    );
+
+    // Send the updated request as response
+    res.json(updatedRequest);
+  } catch (error) {
+    console.error('Error accepting pickup-drop request:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get driver requests by driver id
+app.get('/driver-requests/:driverId', async (req, res) => {
+  try {
+    const driverId = req.params.driverId;
+    const driverRequests = await PickupDropModel.find({ DriverId: driverId });
+    res.json(driverRequests);
+  } catch (error) {
+    console.error('Error fetching driver requests:', error);
+    res.status(500).json({ error: 'An error occurred while fetching driver requests' });
+  }
+});
+
+// Mark a Pickup Drop Request as complete
+app.put('/driver-requests/:requestId', async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+    const { IsCompleted } = req.body;
+
+    // Find the request by ID and update the IsCompleted field
+    const updatedRequest = await PickupDropModel.findByIdAndUpdate(
+      requestId,
+      { $set: { IsCompleted: IsCompleted } },
+      { new: true }
+    );
+
+    res.json(updatedRequest);
+  } catch (error) {
+    console.error('Error marking request as complete:', error);
+    res.status(500).json({ error: 'An error occurred while marking request as complete' });
+  }
+});
+
 
 
 // user specific profile with profile edit and change password endpoints

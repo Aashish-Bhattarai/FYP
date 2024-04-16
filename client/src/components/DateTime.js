@@ -1,10 +1,11 @@
 // DateTime.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { isAfter, isBefore, isSameDay, addHours, addDays } from 'date-fns';
+import PickupAndDropService from './PickupAndDropService';
 
-function DateTimePicker() {
+function DateTimePicker(props) {
   const [selectedDateTime, setStartDate] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
 
@@ -22,6 +23,10 @@ function DateTimePicker() {
     );
   };
 
+  useEffect (() => {
+    props.setSelectedDateTime(selectedDateTime)
+  }, [props, selectedDateTime]);
+
   return (
     <>
       <div className="datetime-picker-container">
@@ -37,7 +42,7 @@ function DateTimePicker() {
           dateFormat="MMMM d, yyyy h:mm aa"
           placeholderText='Choose Date and Time'
           className="custom-date-picker"
-        />
+        />  
 
         <div className="selected-datetime">
           {selectedDateTime && (

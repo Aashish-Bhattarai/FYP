@@ -27,7 +27,7 @@ function ManagePackage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div style={{ backgroundColor: '#4682B4', color: '#fff', textAlign: 'center', padding: '10px', borderRadius: '8px', marginTop: '30px',width: '60%', margin: 'auto' }}>
-          <h2 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>View/Edit Packages:</h2>
+          <h2 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>View/Edit Packages</h2>
       </div> 
       {/* Render package cards */}
       {pkg.map((packageDetails, index) => (

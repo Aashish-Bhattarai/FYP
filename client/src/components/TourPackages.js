@@ -60,7 +60,7 @@ function TourPackages() {
             // Fetch user details using userId
             axios.get(`http://localhost:3001/users/getUser/${userId}`)
                 .then(userResponse => {
-                    const { name, email } = userResponse.data;
+                    const { name, email, phone } = userResponse.data;
     
                     // Include user's name and email in the booking data
                     const bookingData = {
@@ -71,8 +71,9 @@ function TourPackages() {
                         Cost: selectedPackage.Cost,
                         status: 'Pending', // Default status
                         userId: userId,
-                        userName: name, // Include user name
-                        userEmail: email // Include user email
+                        userName: name, 
+                        userEmail: email,
+                        userPhone: phone 
                     };
     
                     // Post booking data to the server
