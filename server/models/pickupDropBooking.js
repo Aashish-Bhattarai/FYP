@@ -7,13 +7,13 @@ const PickupDropSchema = new mongoose.Schema({
   DropLocation: String, 
   Distance: String,
   Cost: Number,
-  userId: mongoose.Schema.Types.ObjectId,
+  userId: mongoose.Schema.Types.ObjectId, // Defining mongoose built-in _id/userId as ObjectId
   userName: String,
   userEmail: String,
   userPhone: Number,
   status: String, 
   IsCompleted: Boolean,
-  DriverId: mongoose.Schema.Types.ObjectId, // Defining mongoose built-in _id/userId as ObjectId
+  DriverId: mongoose.Schema.Types.ObjectId, 
   DriverName: String, 
   DriverPhone: Number
 });

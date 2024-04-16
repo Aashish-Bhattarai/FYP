@@ -10,6 +10,18 @@ function UserHistory() {
   const [expandedPackage, setExpandedPackage] = useState(null);
   const [expandedRental, setExpandedRental] = useState(null);
   const [expandedPickupDrop, setExpandedPickupDrop] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [submitted, setSubmitted] = useState([]);
+  const [driverRatings, setDriverRatings] = useState([]);
+
+
+  // Initialize the submitted state for each pickup drop item to false
+useEffect(() => {
+  if (userPickupDropData) {
+    setSubmitted(Array(userPickupDropData.length).fill(false));
+  }
+}, [userPickupDropData]);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -51,6 +63,59 @@ function UserHistory() {
 
   const handlePickupDropClick = (index) => {
     setExpandedPickupDrop((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  // Update the submitted state for the selected pickup drop item
+  const handleSubmitRating = (index) => {
+    const selectedPickupDrop = userPickupDropData[index];
+    const data = {
+      userId: selectedPickupDrop.userId,
+      userName: selectedPickupDrop.userName,
+      driverId: selectedPickupDrop.DriverId,
+      driverName: selectedPickupDrop.DriverName,
+      rating: rating,
+      PickupDropId: selectedPickupDrop._id
+    };
+  
+    axios.post('http://localhost:3001/submitDriverRating', data)
+      .then((response) => {
+        console.log('Rating submitted successfully');
+        // Update the submitted state for the selected pickup drop item
+        const updatedSubmitted = [...submitted];
+        updatedSubmitted[index] = true;
+        setSubmitted(updatedSubmitted);
+      })
+      .catch((error) => {
+        console.error('Error submitting rating:', error);
+      });
+  };
+
+  // Update the rating state for the selected pickup drop item
+  const handleRatingChange = (event, index) => {
+    const newRating = parseInt(event.target.value);
+    setRating(newRating);
+  };
+
+  useEffect(() => {
+    // Function to fetch data from the backend API
+    const fetchDriverRatings = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/driver-ratings'); // Make a GET request to the backend API
+        setDriverRatings(response.data); // Set the fetched data in state
+      } catch (error) {
+        console.error('Error fetching driver ratings:', error);
+      }
+    };
+
+    fetchDriverRatings(); // Call the function to fetch data when component mounts
+  }, []);
+
+  const getAverageRatingForDriver = (driverId) => {
+    const ratingsForDriver = driverRatings.filter((rating) => rating.DriverId === driverId);
+    if (ratingsForDriver.length === 0) return "No rating yet";
+
+    const totalRating = ratingsForDriver.reduce((acc, curr) => acc + curr.Rating, 0);
+    return totalRating / ratingsForDriver.length;
   };
 
   return (
@@ -181,17 +246,94 @@ function UserHistory() {
         </div>
       </div>
 
-
-
       {/* Pickup & Drop History */}
       <div className="col-md-4">
         <div className="card mb-4">
           <div className="card-header" style={{ textAlign: 'center', fontSize: '18px' }}><b>Pickup & Drop History</b></div>
-          <div className="card-body">
-            {/* Implement similar structure for Pickup & Drop History */}
+          <div className="card-body" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            {userPickupDropData && userPickupDropData.some(item => item.status === "Accepted") ? (
+              userPickupDropData
+                .filter(item => item.status === "Accepted")
+                .map((item, index) => (
+                  <div key={index} className="mb-3">
+                    <button
+                      className="btn btn-dark d-flex justify-content-center align-items-center"
+                      type="button"
+                      onClick={() => handlePickupDropClick(index)}
+                      style={{
+                        width: '100%',
+                        padding: '18px',
+                        backgroundColor: expandedPickupDrop === index ? '#57616b' : '#343a40',
+                        color: '#fff',
+                        border: '1px solid #343a40',
+                        transition: 'box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s',
+                        borderRadius: '5px', // Add some rounded corners
+                        textTransform: 'uppercase', // Convert text to uppercase
+                        letterSpacing: '1px', // Add letter spacing
+                        fontSize: '14px', // Adjust font size
+                        fontWeight: 'bold', // Apply bold font weight
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.borderColor = '#007bff';
+                        e.target.style.boxShadow = '0 0 15px rgba(0, 123, 255, 0.7)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.borderColor = expandedPickupDrop === index ? '#f0ad4e' : '#343a40';
+                        e.target.style.boxShadow = 'none';
+                      }}
+                    >
+                      Pickup Drop History {index + 1}
+                    </button>
+
+                    {expandedPickupDrop === index && (
+                      <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                        <p className="mb-1"><strong>Booked Date:</strong> {new Date(item.BookedDateAndTime).toDateString()}</p>
+                        <p className="mb-1"><strong>Pickup Location:</strong> {item.PickupLocation}</p>
+                        <p className="mb-1"><strong>Drop Location:</strong> {item.DropLocation}</p>
+                        <p className="mb-1"><strong>Driver Name:</strong> {item.DriverName}</p>
+                        <p className="mb-1"><strong>Contact:</strong> {item.DriverPhone}</p>
+                        <p className="mb-1"><strong>Driver Rating:</strong> {getAverageRatingForDriver(item.DriverId)}</p>
+                        {item.IsCompleted && !submitted[index] &&  !driverRatings.some(driverRating => driverRating.PickupDropId === item._id) && (
+                          <div style={{ marginTop: '10px' }}>
+                            <p className="mb-2"><strong>Please rate the driver:</strong></p>
+                            <div className="d-flex flex-column align-items-center">
+                              <div className="d-flex justify-content-between w-100 mb-1">
+                                <span>1</span>
+                                <span>2</span>
+                                <span>3</span>
+                                <span>4</span>
+                                <span>5</span>
+                              </div>
+                              <input
+                                type="range"
+                                className="form-range w-100"
+                                min="1"
+                                max="5"
+                                value={rating}
+                                onChange={(event) => handleRatingChange(event, index)}
+                              />
+                            </div>
+                            <button className="btn btn-primary mt-2" onClick={() => handleSubmitRating(index)}>Submit Rating</button>
+                            {submitted[index] && (
+                              <p className="mt-2 text-success">Your rating has been submitted. Thank you!</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))
+            ) : (
+              <div className="alert alert-warning" role="alert">
+                No pickup & drop history available.
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+
+   
     </div>
   </div>
   <Footer />

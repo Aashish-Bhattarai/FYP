@@ -158,8 +158,54 @@ function UserProfile() {
               <button onClick={handleSaveChanges} style={{ fontSize: '1.3rem', padding: '10px 10px', borderRadius: '8px', backgroundColor: '#007bff', color: '#fff', border: 'none', cursor: 'pointer' }}>Save Changes</button>
             ) : (
               <>
-                <button onClick={handleEditProfile} style={{ fontSize: '1.3rem', padding: '10px 10px', borderRadius: '8px', backgroundColor: '#57616b', color: '#fff', border: 'none', cursor: 'pointer' }}>Edit Profile</button>
-                <button onClick={() => setShowChangePasswordPopup(true)} style={{ fontSize: '1.3rem', padding: '10px 10px', borderRadius: '8px', backgroundColor: '#57616b', color: '#fff', border: 'none', cursor: 'pointer', marginLeft: '10px' }}>Change Password</button>
+                <button
+                  onClick={handleEditProfile}
+                  style={{
+                    fontSize: '1.3rem',
+                    padding: '10px 10px',
+                    borderRadius: '8px',
+                    backgroundColor: '#57a0d3',
+                    color: 'black',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s ease, color 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#ee823a';
+                    e.target.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#57a0d3';
+                    e.target.style.color = 'whitesmoke';
+                  }}
+                >
+                  Edit Profile
+                </button>
+
+                <button
+                  onClick={() => setShowChangePasswordPopup(true)}
+                  style={{
+                    fontSize: '1.3rem',
+                    padding: '10px 10px',
+                    borderRadius: '8px',
+                    backgroundColor: '#57a0d3',
+                    color: 'black',
+                    border: 'none',
+                    cursor: 'pointer',
+                    marginLeft: '10px',
+                    transition: 'background-color 0.3s ease, color 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#ee823a';
+                    e.target.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#57a0d3';
+                    e.target.style.color = 'whitesmoke';
+                  }}
+                >
+                  Change Password
+                </button>
               </>
             )}
           </div>

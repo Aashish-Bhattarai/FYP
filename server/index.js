@@ -17,6 +17,7 @@ const RentalModel = require('./models/rental')
 const BookingPackage = require('./models/packageBooking')
 const BookingRental = require('./models/rentalBooking')
 const PickupDropModel = require('./models/pickupDropBooking')
+const DriverRatingModel = require('./models/driverRating')
 
 const app = express();
 app.use(express.json());
@@ -637,6 +638,51 @@ app.get("/UserRentalHistory/:userId", (req, res) => {
   BookingRental.find({ userId }) // Find all bookings with the specified userId
     .then((UserRentalHistory) => res.json(UserRentalHistory))
     .catch((err) => res.json(err));
+});
+
+app.get("/UserPickupDropHistory/:userId", (req,res) => {
+  const  userId = req.params.userId;
+  PickupDropModel.find({ userId}) //Find all pickup drop requests with the specified userId
+    .then((UserPickupDropHistory) => res.json(UserPickupDropHistory))
+    .catch((err) => res.json(err));
+})
+
+// Route to submit driver rating
+app.post('/submitDriverRating', async (req, res) => {
+  try {
+    // Extract data from request body
+    const { userId, userName, driverId, driverName, rating, PickupDropId } = req.body;
+
+    // Create new driver rating document
+    const driverRating = new DriverRatingModel({
+      DriverName: driverName,
+      DriverId: driverId,
+      userName: userName,
+      userID: userId,
+      Rating: rating,
+      PickupDropId: PickupDropId // Associate the rating with the corresponding PickupDropModel document
+    });
+
+    // Save the driver rating document to the database
+    await driverRating.save();
+
+    // Respond with success message
+    res.status(200).json({ message: 'Rating submitted successfully' });
+  } catch (error) {
+    // Respond with error message
+    res.status(500).json({ error: 'Error submitting rating' });
+  }
+});
+
+// Route to fetch data from the DriverRatingModel
+app.get('/driver-ratings', async (req, res) => {
+  try {
+    const ratings = await DriverRatingModel.find();
+    res.json(ratings); // Send the ratings as JSON response
+  } catch (error) {
+    console.error('Error fetching driver ratings:', error);
+    res.status(500).json({ error: 'Internal server error' }); 
+  }
 });
 
 // Define a route to send emails
