@@ -84,11 +84,11 @@ h1.login-Text {
 
 .l-btn {
     margin-top: 50px;
-    margin-left: 70px;
+    margin-left: 75px;
     font-size: 20px;
     border-radius: 5px;
-    height: 40px;
-    width: 250px;
+    height: 50px;
+    width: 225px;
     font-size: 25px;
 }
 
@@ -128,11 +128,11 @@ div.s-txt {
 
 h2.wlc-txt {
     margin-top: 215px;
-    padding-left: 95px;
+    padding-left: 80px;
 }
 
-h3.s-txt {
-    padding-left: 45px;
+h4.s-txt {
+    padding-left: 15px;
 }
 
 .s-btn {

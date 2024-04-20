@@ -1,7 +1,36 @@
-// Nav.js
-import React from 'react';
+// NavBar.js
+import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-solid-svg-icons';
+import Notification from './Notification'; // Import the Notification component
 
 const NavBar = () => {
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [notificationCount, setNotificationCount] = useState(0);
+
+    const toggleNotification = () => {
+        setIsNotificationOpen(!isNotificationOpen);
+        setNotificationCount(0); // Reset notification count when opening notification panel
+    };
+
+    useEffect(() => {
+        // Simulate fetching notification count from the server
+        // Replace this with actual API call to get the notification count
+        const fetchNotificationCount = async () => {
+            try {
+                // Fetch notification count from the server
+                // For now, we're using a static value, but you should replace this with an API call
+                const response = await fetch('http://localhost:3001/notificationCount');
+                const data = await response.json();
+                setNotificationCount(data.count); // Update notification count
+            } catch (error) {
+                console.error('Error fetching notification count:', error);
+            }
+        };
+
+        fetchNotificationCount(); // Fetch notification count when the component mounts
+    }, []);
+
     return (
         <nav>
             <div className="nav-left">
@@ -11,7 +40,16 @@ const NavBar = () => {
                 <a href="/UserHistory">History</a>
             </div>
             <div className="nav-right">
-                <a href="/logout">Logout</a>
+                <div onClick={toggleNotification}>
+                    <FontAwesomeIcon icon={faBell} style={{ marginRight: '50px', height: '20px', cursor: 'pointer', color: 'white', paddingTop: '6px' }} />
+                    {notificationCount > 0 && <span className="notification-count">{notificationCount}</span>} {/* Display notification count */}
+                </div>
+                {isNotificationOpen && (
+                    <Notification /> // Render the Notification component when isNotificationOpen is true
+                )}
+                <div className='logout'>
+                    <a href="/logout">Logout</a>
+                </div>
             </div>
             <style>
                 {`
@@ -38,6 +76,8 @@ const NavBar = () => {
                     display: flex;
                     justify-content: center;
                     align-items: center;
+                    font-size: 18px;
+                    margin-right: 30px;
                 }
                 
                 .nav-left a:hover {
@@ -48,9 +88,35 @@ const NavBar = () => {
                     display: flex;
                     align-items: center;
                     margin-left: auto;
+                    font-size: 18px;
+                }
+
+                .notification-panel {
+                    position: absolute;
+                    top: 80px;
+                    right: 40px;
+                    background-color: white;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    padding: 20px;
+                }
+
+                .notification-count {
+                    position: absolute;
+                    top: 4px;
+                    right: 12px;
+                    background-color: red;
+                    color: white;
+                    font-size: 12px;
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
                 }
                 
-                .nav-right a:hover {
+                .logout a:hover {
                     background-color: #57a0d3;
                 }
                 `}

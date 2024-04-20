@@ -22,6 +22,8 @@ import DriverProfile from './components/DriverProfile';
 import DriverHistory from './components/DriverHistory';
 import UserProfile from './components/UserProfile';
 import UserHistory from './components/UserHistory';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 const App = () => {
   return (
@@ -29,6 +31,8 @@ const App = () => {
       <Fragment>
       <Routes>
         <Route path="/" element={<LoginSignup />} />
+        <Route path="/forgot-password" element={<ForgotPassword/>} />
+        <Route path="/reset-password/:id/:token" element={<ResetPassword/>} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/AdminPackage" element={<AdminPackage />} />
         <Route path="/AdminManagePackage" element={<AdminManagePackage />} />

@@ -89,7 +89,7 @@ app.post('/login', async (req, res) => {
         }
         
         // User is authenticated - generate and send JWT token
-        const token = jwt.sign({ id: user._id, role: user.role }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, role: user.role }, secretKey, { expiresIn: "1h"});
 
          // Sending the token and login success message in a single response
          res.status(200).json({ token, message: 'Login successful', user });
@@ -554,8 +554,6 @@ app.put('/driver-requests/:requestId', async (req, res) => {
   }
 });
 
-
-
 // user specific profile with profile edit and change password endpoints
 app.get("/userprofile/:id", (req, res) => {
   const id = req.params.id;
@@ -717,6 +715,68 @@ app.post('/sendEmail', (req, res) => {
       }
   });
 });
+
+//Forgot Password Backend Logic
+app.post('/forgot-password', (req,res)=> {
+  const {email} = req.body;
+  UserModel.findOne({email:email})
+  .then(user => {
+    if(!user) {
+      return res.send({Status: "User doesn't exist"})
+    }
+    const token  = jwt.sign({id: user._id}, secretKey, {expiresIn: "1d"} )
+    const encodedToken = encodeURIComponent(token);
+    const resetPasswordURL = `http://localhost:3000/reset-password/${user._id}/${encodedToken}`;
+
+      // Create a transporter object using nodemailer
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'bhattaraiaashish100@gmail.com',
+            pass: 'kqde bnmo daxm bjhh'
+        }
+      });
+
+      // Define the mail options
+      const mailOptions = {
+          from: 'bhattaraiaashish100@gmail.com',
+          to: email, 
+          subject: 'Reset Your Password',
+          text: resetPasswordURL
+      };
+
+      // Send the email
+      transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              console.error('Error sending email:', error);
+              res.status(500).json({ message: 'Error sending email' });
+          } else {
+              console.log('Email sent:', info.response);
+              res.status(200).json({ message: 'Email sent successfully' });
+          }
+      });
+
+    })
+})
+
+//reset password backend logic
+app.post('/reset-password/:id/:token', (req, res) => {
+  const {id, token} = req.params;
+  const {newPassword} = req.body;
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.json ({Status: "Error with Token"})
+    } else {
+      bcrypt.hash(newPassword, 10)
+      .then(hash =>{
+        UserModel.findByIdAndUpdate({_id:id}, {password: hash})
+        .then (u => res.send({Status: "success"}))
+        .catch(err => res.send({Status: err}))
+      })
+    }
+  })
+})
 
 // setting port for the server
 app.listen(3001, () => {

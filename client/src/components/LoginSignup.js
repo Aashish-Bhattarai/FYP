@@ -1,6 +1,6 @@
 // LoginSignup.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser, faPhone} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -210,11 +210,13 @@ const LoginSignup = () => {
                                     <FontAwesomeIcon icon={faLock} />
                                     <input type="password" id="Password" name="password" placeholder="password" required onChange={(e) => setL_password(e.target.value)} /><br />
                                     <button className='l-btn' type='submit'>LogIn</button>
+                                    <p style={{marginTop: '40px', marginLeft: '70px'}}>Forgot Your Password? <Link to="/forgot-password">Click here</Link></p>
                                 </form>
                             </div>
                             <div className='s-txt'>
                                 <h2 className='wlc-txt'> Welcome,</h2>
-                                <h3 className='s-txt'> Don't have an account?</h3>
+                                <br/>
+                                <h4 className='s-txt'> &nbsp; Don't have an account?</h4>
                                 <button className='s-btn' id='s-btn' onClick={toggleForm}> SignUp </button>
                             </div>
                         </>
@@ -246,7 +248,8 @@ const LoginSignup = () => {
                             </div>
                             <div className='login-Text'>
                                 <h2 className='wlc-txt'> Welcome,</h2>
-                                <h3 className='s-txt'> Already have an account?</h3>
+                                <br/>
+                                <h4 className='s-txt'> Already have an account?</h4>
                                 <button className='lt-btn' id='lt-btn' onClick={toggleForm}> LogIn </button>
                             </div>
                         </>
