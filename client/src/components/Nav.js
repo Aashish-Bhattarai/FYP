@@ -1,35 +1,15 @@
 // NavBar.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import Notification from './Notification'; // Import the Notification component
 
 const NavBar = () => {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-    const [notificationCount, setNotificationCount] = useState(0);
 
     const toggleNotification = () => {
         setIsNotificationOpen(!isNotificationOpen);
-        setNotificationCount(0); // Reset notification count when opening notification panel
     };
-
-    useEffect(() => {
-        // Simulate fetching notification count from the server
-        // Replace this with actual API call to get the notification count
-        const fetchNotificationCount = async () => {
-            try {
-                // Fetch notification count from the server
-                // For now, we're using a static value, but you should replace this with an API call
-                const response = await fetch('http://localhost:3001/notificationCount');
-                const data = await response.json();
-                setNotificationCount(data.count); // Update notification count
-            } catch (error) {
-                console.error('Error fetching notification count:', error);
-            }
-        };
-
-        fetchNotificationCount(); // Fetch notification count when the component mounts
-    }, []);
 
     return (
         <nav>
@@ -42,7 +22,6 @@ const NavBar = () => {
             <div className="nav-right">
                 <div onClick={toggleNotification}>
                     <FontAwesomeIcon icon={faBell} style={{ marginRight: '50px', height: '20px', cursor: 'pointer', color: 'white', paddingTop: '6px' }} />
-                    {notificationCount > 0 && <span className="notification-count">{notificationCount}</span>} {/* Display notification count */}
                 </div>
                 {isNotificationOpen && (
                     <Notification /> // Render the Notification component when isNotificationOpen is true
@@ -99,21 +78,6 @@ const NavBar = () => {
                     border: 1px solid #ccc;
                     border-radius: 5px;
                     padding: 20px;
-                }
-
-                .notification-count {
-                    position: absolute;
-                    top: 4px;
-                    right: 12px;
-                    background-color: red;
-                    color: white;
-                    font-size: 12px;
-                    width: 16px;
-                    height: 16px;
-                    border-radius: 50%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
                 }
                 
                 .logout a:hover {

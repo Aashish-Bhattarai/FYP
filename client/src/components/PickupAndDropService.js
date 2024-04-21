@@ -8,6 +8,7 @@ import Maps from './Map';
 import PickupSearchBox from './PickupSearchBox';
 import DropSearchBox from './DropSearchBox';
 import NavBar from './Nav';
+import Swal from 'sweetalert2';
 
 const PickupAndDropService = (props) => {
   const [pickupPosition, setPickupPosition] = useState(null);
@@ -55,7 +56,7 @@ const PickupAndDropService = (props) => {
       console.error('Please select date and time, pickup and drop locations before confirming booking.');
       return;
     }
-
+  
     try {
       
       // Fetch place names for pickup and drop positions asynchronously
@@ -63,15 +64,15 @@ const PickupAndDropService = (props) => {
         fetchPlaceName(pickupPosition.lat, pickupPosition.lon),
         fetchPlaceName(dropPosition.lat, dropPosition.lon)
       ]);
-
+  
       if (pickupPlaceName && dropPlaceName) {
         const token = localStorage.getItem('token');
         const decodedToken = JSON.parse(atob(token.split('.')[1]));
         const userId = decodedToken.id;
-
+  
         const userResponse = await axios.get(`http://localhost:3001/users/getUser/${userId}`);
         const { name, email, phone } = userResponse.data;
-
+  
         const bookingData = {
           BookedDateAndTime: selectedDateTime,
           BookingTime: new Date(),
@@ -86,10 +87,23 @@ const PickupAndDropService = (props) => {
           status: 'Pending',
           IsCompleted: false
         };
-
+  
         const response = await axios.post('http://localhost:3001/BookPickupDrop', bookingData);
         console.log('Rental Booking Requested:', response.data);
-        // Handle success or reset state as needed
+        
+        // Reset state values to initial values
+        Swal.fire({
+          icon: 'success',
+          title: 'Booking Confirmed',
+          text: 'Your pickup and drop service has been booked successfully!',
+          confirmButtonText: 'OK',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Reload the page if the user clicks "OK"
+            window.location.reload();
+          }
+        });
+        
       } else {
         console.error('Error fetching place names.');
       }
@@ -98,6 +112,7 @@ const PickupAndDropService = (props) => {
       // Handle error as needed
     }
   };
+  
 
   const leftSideStyle = {
     flex: 1,
@@ -105,6 +120,7 @@ const PickupAndDropService = (props) => {
     margin: '7% 3%',
     border: '1px solid #ccc', /* Add borders for visibility */
     width: '500px',
+    height: 'auto',
     borderRadius: '15px',
     marginRight: '3%',
   };
@@ -114,7 +130,6 @@ const PickupAndDropService = (props) => {
     padding: '20px',
     margin: '7% 3%',
     border: '1px solid #ccc', /* Add borders for visibility */
-    height: '600px',
     width: '500px',
     borderRadius: '15px',
     marginLeft: '3%',
@@ -147,7 +162,7 @@ const PickupAndDropService = (props) => {
               </div>
             }
           </div>
-          <button className='confirmation' style={{ marginTop: '10px' }} disabled={confirmDisabled} onClick={handleConfirmBooking}> Confirm </button>
+          <button className='confirmation' style={{ marginTop: '10px', display: confirmDisabled ? 'none' : 'block' }} onClick={handleConfirmBooking}> Confirm </button>
         </div>
         <div className='right-side' style={rightSideStyle}>
           <Maps pickupPosition={pickupPosition} dropPosition={dropPosition} setPickupPosition={setPickupPosition} setDropPosition={setDropPosition} distance={distance} setDistance={(value) => setDistance(value)} />
@@ -188,11 +203,11 @@ const PickupAndDropService = (props) => {
               position: relative;
           }
 
-          .confirmation:hover {
-              background-color: #66ab68;
-              box-shadow: 0 0 10px rgba(102, 171, 104, 0.8);
-              border-color: #66ab68;
-              color: #fff;
+          .confirmation:hover:not([disabled]) {
+            background-color: #66ab68;
+            box-shadow: 0 0 10px rgba(102, 171, 104, 0.8);
+            border-color: #66ab68;
+            color: #fff;
           }
         `}
       </style>

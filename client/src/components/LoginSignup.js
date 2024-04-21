@@ -135,7 +135,20 @@ const LoginSignup = () => {
                     });
                 }, 300); // setTimeout to ensure the SweetAlert appears after navigation
             } else if (userRole === 'admin') {
-                navigate('/admin');
+                navigate('/AdminDashboard');
+                // Show login successful alert after a delay
+                setTimeout(() => {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "Login Successful!!",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }, 200); // Adjust the delay time as needed
+
+            }  else if (userRole === 'driver') {
+                navigate('/PDRequests');
                 // Show login successful alert after a delay
                 setTimeout(() => {
                     Swal.fire({
@@ -193,21 +206,21 @@ const LoginSignup = () => {
             <div className='leftside'>
                 <div className='Image-Container'>
                     <img className='background-image' src={`${process.env.PUBLIC_URL}/bw roads.png`} alt="background Img" />
-                    <img className='overlay-image' src={`${process.env.PUBLIC_URL}/map.png`} alt="overlay Img" />
+                    {/* <img className='overlay-image' src={`${process.env.PUBLIC_URL}/map.png`} alt="overlay Img" /> */}
                 </div>
             </div>
 
             <div className='rightside'>
-                <img className='logo' src={`${process.env.PUBLIC_URL}/logoQC.png`} alt="Logo Img" />
+                <img className='logo' src={`${process.env.PUBLIC_URL}/YatraSathi.png`} alt="Logo Img" />
                 <div className='LS-form'>
                     {showLogin ? (
                         <>
                             <div className='login-form' id='login-form'>
                                 <h1 className='login-Text' style={{ fontFamily: 'monospace', fontSize: '32px' }}> LogIn </h1>
                                 <form action='/login' method='POST' onSubmit={handleLogin}>
-                                    <FontAwesomeIcon icon={faEnvelope} />
-                                    <input type="email" id="Email" name="email" placeholder="email" required onChange={(e) => setL_email(e.target.value)} /><br />
-                                    <FontAwesomeIcon icon={faLock} />
+                                    <FontAwesomeIcon icon={faEnvelope} />&ensp;
+                                    <input type="email" id="Email" name="email" placeholder="email" required onChange={(e) => setL_email(e.target.value)} /> <br/> <br/>
+                                    <FontAwesomeIcon icon={faLock} />&ensp;
                                     <input type="password" id="Password" name="password" placeholder="password" required onChange={(e) => setL_password(e.target.value)} /><br />
                                     <button className='l-btn' type='submit'>LogIn</button>
                                     <p style={{marginTop: '40px', marginLeft: '70px'}}>Forgot Your Password? <Link to="/forgot-password">Click here</Link></p>

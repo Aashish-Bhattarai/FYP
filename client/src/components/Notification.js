@@ -67,11 +67,11 @@ const Notification = () => {
       <h2>Notifications</h2>
       <ul>
         {notifications.map((notification, index) => (
-          <li key={index} className={`notification-item ${notification.status.toLowerCase()}`}>
-            <p style={{ textAlign: 'center', marginBottom: '10px' }}>{notification.type} Booking</p>
+          <ul key={index} className={`notification-item ${notification.status.toLowerCase()}`}>
+            <p style={{ marginBottom: '10px' }}>{notification.type} Booking</p>
             <p>Date: {new Date(notification.date).toLocaleDateString()}</p>
             <p>Status: {notification.status}</p>
-          </li>
+          </ul>
         ))}
         {notifications.length === 0 && (
           <li className="no-notification">No notifications to display</li>

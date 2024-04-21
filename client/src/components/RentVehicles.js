@@ -7,6 +7,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from './Nav';
 import Footer from './Footer';
+import Swal from 'sweetalert2';
 
 function RentVehicles() {
     const [rental, setRental] = useState([]);
@@ -26,6 +27,11 @@ function RentVehicles() {
             })
             .catch((err) => {
                 console.log(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error while fetching rental vehicle data! Please try again later.',
+                });
             });
     }, []);
 
@@ -36,6 +42,11 @@ function RentVehicles() {
             })
             .catch(error => {
                 console.error('Error fetching booked vehicles:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error while fetching booked vehicles data! Please try again later.',
+                });
             });
     }, []);
 
@@ -70,7 +81,11 @@ function RentVehicles() {
             setSelectedVehicle(vehicle);
             setShowPopup(true);
         } else {
-            alert("This vehicle is already booked.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'This vehicle is already booked.',
+            });
         }
     };
 
@@ -122,16 +137,38 @@ function RentVehicles() {
                             console.log('Rental Booking Requested:', response.data);
                             const updatedFilteredRental = filteredRental.filter(item => item !== selectedVehicle);
                             setFilteredRental(updatedFilteredRental);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Your booking request has been confirmed.',
+                                timer: 1500,
+                                timerProgressBar: true,
+                            });
                         })
                         .catch(error => {
                             console.error('Error confirming booking:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Error confirming booking request! Please try again later.',
+                            });
                         });
                 })
                 .catch(error => {
                     console.error('Error fetching user details:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error fetching user details! Please try again later.',
+                    });
                 });
         } else {
             console.error('Please select a vehicle, date, and rental duration before confirming booking.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please select a vehicle, date, and rental duration before confirming booking.',
+            });
         }
     
         setShowPopup(false);

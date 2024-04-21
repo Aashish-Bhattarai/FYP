@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NavBar from './Nav';
 import Footer from './Footer';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 // Import Bootstrap icons CSS
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -48,6 +49,13 @@ function UserProfile() {
         setUserData(editedUserData);
       })
       .catch((err) => console.log(err));
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Your profile has been updated successfully.',
+        timer: 1500,
+        timerProgressBar: true,
+    });
   };
 
   const handleInputChange = (e) => {
@@ -165,7 +173,7 @@ function UserProfile() {
                     padding: '10px 10px',
                     borderRadius: '8px',
                     backgroundColor: '#57a0d3',
-                    color: 'black',
+                    color: 'white',
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'background-color 0.3s ease, color 0.3s ease',
@@ -189,7 +197,7 @@ function UserProfile() {
                     padding: '10px 10px',
                     borderRadius: '8px',
                     backgroundColor: '#57a0d3',
-                    color: 'black',
+                    color: 'white',
                     border: 'none',
                     cursor: 'pointer',
                     marginLeft: '10px',

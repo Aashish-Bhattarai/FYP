@@ -6,6 +6,8 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // Import JWT library
 const crypto = require('crypto'); // Import the crypto module for secret key generation
+const PDFDocument = require('pdfkit');
+const moment = require('moment');
 
 const multer = require('multer');
 const path = require("path")
@@ -649,7 +651,7 @@ app.get("/UserPickupDropHistory/:userId", (req,res) => {
 app.post('/submitDriverRating', async (req, res) => {
   try {
     // Extract data from request body
-    const { userId, userName, driverId, driverName, rating, PickupDropId } = req.body;
+    const { userId, userName, driverId, driverName, rating, date, PickupDropId } = req.body;
 
     // Create new driver rating document
     const driverRating = new DriverRatingModel({
@@ -658,6 +660,7 @@ app.post('/submitDriverRating', async (req, res) => {
       userName: userName,
       userID: userId,
       Rating: rating,
+      BookedDate: date,
       PickupDropId: PickupDropId // Associate the rating with the corresponding PickupDropModel document
     });
 
@@ -777,6 +780,243 @@ app.post('/reset-password/:id/:token', (req, res) => {
     }
   })
 })
+
+
+//Admin Dashboard
+
+//fetch the number of users
+app.get('/users', async (req, res) => {
+  try {
+      const users = await UserModel.countDocuments();
+      res.json({ totalUsers: users });
+  } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+//fetch the number of drivers
+app.get('/drivers', async (req, res) => {
+  try {
+      const drivers = await UserModel.countDocuments({ role: 'driver' });
+      res.json({ totalDrivers: drivers });
+  } catch (error) {
+      console.error('Error fetching drivers:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+//fetch total earnings
+app.get('/earnings', async (req, res) => {
+  try {
+      const bookings = await Promise.all([
+          BookingPackage.find({ status: 'Accepted' }).select('Cost'),
+          PickupDropModel.find({ status: 'Accepted' }).select('Cost'),
+          BookingRental.find({ status: 'Accepted' }).select('CostTotal')
+      ]);
+
+      const totalEarnings = bookings.flat().reduce((acc, booking) => acc + (booking.Cost || booking.CostTotal), 0);
+      res.json({ totalEarnings });
+  } catch (error) {
+      console.error('Error fetching total earnings:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Route to fetch total number of services
+app.get('/services', async (req, res) => {
+  try {
+      // Fetch total number of all services
+      const totalPickupDropServices = await PickupDropModel.countDocuments();
+      const totalRentalServices = await BookingRental.countDocuments();
+      const totalPackageServices = await BookingPackage.countDocuments();
+
+      // Fetch total number of pending services
+      const totalPendingPickupDropServices = await PickupDropModel.countDocuments({ status: 'Pending' });
+      const totalPendingRentalServices = await BookingRental.countDocuments({ status: 'Pending' });
+      const totalPendingPackageServices = await BookingPackage.countDocuments({ status: 'Pending' });
+
+      // Fetch total number of accepted services
+      const totalAcceptedPickupDropServices = await PickupDropModel.countDocuments({ status: 'Accepted' });
+      const totalAcceptedRentalServices = await BookingRental.countDocuments({ status: 'Accepted' });
+      const totalAcceptedPackageServices = await BookingPackage.countDocuments({ status: 'Accepted' });
+
+      res.json({
+          totalPickupDropServices,
+          totalRentalServices,
+          totalPackageServices,
+          totalPendingPickupDropServices,
+          totalPendingRentalServices,
+          totalPendingPackageServices,
+          totalAcceptedPickupDropServices,
+          totalAcceptedRentalServices,
+          totalAcceptedPackageServices
+      });
+  } catch (error) {
+      console.error('Error fetching total services:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Endpoint to fetch average ratings for drivers
+app.get('/driver-ratings', async (req, res) => {
+  try {
+    // Aggregate to calculate average ratings for each driver
+    const averageRatings = await DriverRatingModel.aggregate([
+      {
+        $group: {
+          _id: '$DriverId',
+          averageRating: { $avg: '$Rating' }
+        }
+      }
+    ]);
+
+    res.status(200).json({ averageRatings });
+  } catch (error) {
+    console.error('Error fetching average driver ratings:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Endpoint to remove a driver
+app.delete('/remove-driver/:driverId', async (req, res) => {
+  const driverId = req.params.driverId;
+
+  try {
+      // Remove the driver from the UserModel based on the driverId
+      await UserModel.deleteOne({ _id: driverId });
+
+      // Respond with success message
+      res.status(200).json({ message: 'Driver removed successfully' });
+  } catch (error) {
+      console.error('Error removing driver:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Download report for a month
+app.get('/reports/:month', async (req, res) => {
+  try {
+    const { month } = req.params;
+
+    // Parse the month parameter to ensure it's a valid number
+    const monthNumber = parseInt(month);
+
+    // Check if the provided month is a valid number between 1 and 12
+    if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
+      return res.status(400).json({ error: 'Invalid month' });
+    }
+
+    // Extract the year from the current date
+    const currentYear = new Date().getFullYear();
+
+    // Calculate the start and end dates of the specified month
+    const startDate = moment({ year: currentYear, month: monthNumber - 1 });
+    const endDate = startDate.clone().endOf('month');
+
+    // Fetch data from the database for each service type
+    const [bookingPackages, pickupDropServices, bookingRentals] = await Promise.all([
+      BookingPackage.find({
+        BookedDate: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate()
+        }
+      }),
+      PickupDropModel.find({
+        BookedDateAndTime: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate()
+        }
+      }),
+      BookingRental.find({
+        BookedDate: {
+          $gte: startDate.toDate(),
+          $lte: endDate.toDate()
+        }
+      })
+    ]);
+
+    // Calculate total earnings
+    const totalEarnings = bookingPackages
+      .concat(pickupDropServices)
+      .concat(bookingRentals)
+      .filter(service => service.status === 'Accepted')
+      .reduce((total, service) => total + parseFloat(service.Cost || service.CostTotal), 0);
+
+    // Calculate the most popular service (service with the most bookings)
+    const serviceCounts = {
+      'PickupDrop': pickupDropServices.filter(service => service.status === 'Accepted').length,
+      'Rental': bookingRentals.filter(service => service.status === 'Accepted').length,
+      'Package': bookingPackages.filter(service => service.status === 'Accepted').length
+    };
+    const mostPopularService = Object.keys(serviceCounts).reduce((maxService, service) => serviceCounts[service] > (serviceCounts[maxService] || 0) ? service : maxService, '');
+
+    // Calculate the most booked vehicle in rental services
+    const vehicleCounts = {};
+    bookingRentals
+      .filter(service => service.status === 'Accepted')
+      .forEach(service => {
+        const vehicle = service.VehicleName || 'Unknown';
+        vehicleCounts[vehicle] = (vehicleCounts[vehicle] || 0) + 1;
+      });
+    const mostBookedVehicle = Object.keys(vehicleCounts).reduce((maxVehicle, vehicle) => vehicleCounts[vehicle] > (vehicleCounts[maxVehicle] || 0) ? vehicle : maxVehicle, '');
+
+    // Calculate the most booked package
+    const packageCounts = {};
+    bookingPackages
+      .filter(service => service.status === 'Accepted')
+      .forEach(service => {
+        const packageName = service.PackageName || 'Unknown';
+        packageCounts[packageName] = (packageCounts[packageName] || 0) + 1;
+      });
+    const mostBookedPackage = Object.keys(packageCounts).reduce((maxPackage, packageName) => packageCounts[packageName] > (packageCounts[maxPackage] || 0) ? packageName : maxPackage, '');
+
+    // Fetch driver ratings for pickup drop services in the specified month
+    const driverRatings = await DriverRatingModel.aggregate([
+      {
+        $match: {
+          BookedDate: {
+            $gte: startDate.toDate(),
+            $lte: endDate.toDate()
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$DriverId',
+          averageRating: { $avg: '$Rating' }
+        }
+      },
+      { $sort: { averageRating: -1 } }
+    ]);
+
+    // Find the highest average rating
+    const highestAverageRating = driverRatings.length > 0 ? driverRatings[0].averageRating : null;
+
+    // Find all drivers with the highest average rating
+    const topRatedDrivers = driverRatings.filter(driver => driver.averageRating === highestAverageRating).map(driver => driver._id);
+
+    // Fetch details of the top-rated drivers
+    const mostRatedDrivers = await DriverRatingModel.find({ DriverId: { $in: topRatedDrivers } });
+
+    res.json({
+      totalEarnings,
+      mostPopularService,
+      mostBookedVehicle,
+      mostBookedPackage,
+      mostRatedDrivers
+    });
+
+  } catch (error) {
+    console.error('Error generating report:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
 
 // setting port for the server
 app.listen(3001, () => {

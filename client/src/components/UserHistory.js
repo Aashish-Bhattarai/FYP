@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NavBar from './Nav';
 import Footer from './Footer';
+import Swal from 'sweetalert2';
 
 function UserHistory() {
   const [userPackageData, setUserPackageData] = useState(null);
@@ -74,12 +75,20 @@ useEffect(() => {
       driverId: selectedPickupDrop.DriverId,
       driverName: selectedPickupDrop.DriverName,
       rating: rating,
+      date: selectedPickupDrop.BookedDateAndTime,
       PickupDropId: selectedPickupDrop._id
     };
   
     axios.post('http://localhost:3001/submitDriverRating', data)
       .then((response) => {
         console.log('Rating submitted successfully');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Rating Submitted Successfully.',
+          timer: 1500,
+          timerProgressBar: true,
+        });
         // Update the submitted state for the selected pickup drop item
         const updatedSubmitted = [...submitted];
         updatedSubmitted[index] = true;

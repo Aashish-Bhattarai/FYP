@@ -7,9 +7,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from './Nav';
 import Footer from './Footer';
-
-
-
+import Swal from 'sweetalert2';
 
 function TourPackages() {
     const [pkg, setPkg] = useState([]);
@@ -36,6 +34,11 @@ function TourPackages() {
         } else {
             // Handle the case where selectedDate is null
             console.error('Please select a date before booking.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please select a date before booking!',
+            });
         }
     };
 
@@ -46,7 +49,6 @@ function TourPackages() {
         }
     }, [selectedDate, selectedPackage]);
 
-
     const handleClosePopup = () => {
         setShowPopup(false);
     };
@@ -56,12 +58,12 @@ function TourPackages() {
         const token = localStorage.getItem('token');
         if (token) {
             const userId = JSON.parse(atob(token.split('.')[1])).id;
-    
+
             // Fetch user details using userId
             axios.get(`http://localhost:3001/users/getUser/${userId}`)
                 .then(userResponse => {
                     const { name, email, phone } = userResponse.data;
-    
+
                     // Include user's name and email in the booking data
                     const bookingData = {
                         PackageName: selectedPackage.PackageName,
@@ -71,33 +73,52 @@ function TourPackages() {
                         Cost: selectedPackage.Cost,
                         status: 'Pending', // Default status
                         userId: userId,
-                        userName: name, 
+                        userName: name,
                         userEmail: email,
-                        userPhone: phone 
+                        userPhone: phone
                     };
-    
+
                     // Post booking data to the server
                     axios.post('http://localhost:3001/BookPackage', bookingData)
                         .then(response => {
                             console.log('Booking Package Requested:', response.data);
-                            // Optionally, you can show a success message or perform other actions
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Booking Request Confirmed!',
+                                text: 'Your booking request has been confirmed.',
+                                timer: 1500,
+                                timerProgressBar: true,
+                            });
                         })
                         .catch(error => {
-                            console.error('Error confirming booking:', error);
-                            // Handle error scenario
+                            console.error('Error requesting booking:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Error requesting booking! Please try again later.',
+                                timer: 1500
+                            });
                         });
                 })
                 .catch(error => {
                     console.error('Error fetching user details:', error);
-                    // Handle error scenario
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error fetching user details! Please try again later.',
+                    });
                 });
         } else {
             console.error('User token not found in local storage.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'User token not found in local storage! Please login again.',
+            });
         }
-    
+
         setShowPopup(false);
     };
-    
 
     const handleDateChange = (date) => {
         setSelectedDate(date);
@@ -116,7 +137,7 @@ function TourPackages() {
         let endDate;
         const minAllowedDate = new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000); // Minimum allowed date (1 day after the current date)
         const maxAllowedDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000); // Maximum allowed date (7 days after the current date)
-    
+
         // Check if the selected date is within 7 days from the minimum allowed date
         if (startDate >= minAllowedDate && startDate <= maxAllowedDate) {
             endDate = new Date(startDate);
@@ -124,10 +145,10 @@ function TourPackages() {
         } else {
             endDate = maxAllowedDate; // End date is 7 days after the minimum allowed date
         }
-    
+
         // Initialize an object to store daily weather data
         const dailyWeather = {};
-    
+
         // Fetch weather data for the city and date range
         const API_KEY = '2be50454c5b1f41625422c22151ffd75';
         axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${API_KEY}&units=metric&cnt=40`)
@@ -136,7 +157,7 @@ function TourPackages() {
                 response.data.list.forEach(forecast => {
                     const forecastDate = new Date(forecast.dt * 1000);
                     const forecastDateKey = forecastDate.toDateString(); // Use date string as key
-    
+
                     // Check if forecast date is within the selected range
                     if (forecastDate >= startDate && forecastDate <= endDate) {
                         // Add temperature to dailyWeather object
@@ -150,7 +171,7 @@ function TourPackages() {
                         dailyWeather[forecastDateKey].weatherDescriptions.push(forecast.weather[0].description);
                     }
                 });
-    
+
                 // Calculate average temperature and weather description for each day
                 const dailyWeatherData = [];
                 for (const dateKey in dailyWeather) {
@@ -158,7 +179,7 @@ function TourPackages() {
                     const weatherDescription = dailyWeather[dateKey].weatherDescriptions[0]; // Use the first description
                     dailyWeatherData.push({ date: new Date(dateKey), averageTemperature, weatherDescription });
                 }
-    
+
                 // Update state with daily weather data
                 setWeather(dailyWeatherData);
             })
@@ -169,7 +190,7 @@ function TourPackages() {
 
     return (
         <main className="main-container">
-            <NavBar/>
+            <NavBar />
             <style>{`
                 .package-container {
                     max-height: calc(100vh - 75px);
@@ -178,13 +199,13 @@ function TourPackages() {
                     flex-direction: column;
                     align-items: center;
                     justify-content: flex-start;
-                    margin-top: 20px; 
+                    margin-top: 20px;
                 }
 
                 .Cards-View {
                     margin-top:2%;
                     margin-bottom:5%;
-                    width: 60%; 
+                    width: 60%;
                 }
 
                 .card {
@@ -230,11 +251,11 @@ function TourPackages() {
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background-color: rgba(0, 0, 0, 0.5); 
+                    background-color: rgba(0, 0, 0, 0.5);
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    z-index: 999; 
+                    z-index: 999;
                 }
 
                 .popup {
@@ -246,7 +267,7 @@ function TourPackages() {
                 }
 
                 .popup-inner {
-                    max-width: 600px; 
+                    max-width: 600px;
                     text-align: center;
                 }
 
@@ -257,14 +278,14 @@ function TourPackages() {
                     background: none;
                     border: none;
                     cursor: pointer;
-                    font-size: 24px; 
-                    color: #333; 
-                    transition: color 0.3s, text-shadow 0.3s; 
+                    font-size: 24px;
+                    color: #333;
+                    transition: color 0.3s, text-shadow 0.3s;
                 }
 
                 .close-btn:hover {
-                    color: red; 
-                    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); 
+                    color: red;
+                    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
                 }
 
                 .date-time-picker {
@@ -282,66 +303,59 @@ function TourPackages() {
             `}</style>
             <div>
                 <div className="package-container">
-                <div className="Cards-View">
-                <h2 style={{ 
-                    textAlign: 'center', 
-                    color: '#515d69', 
-                    fontSize: '3.5rem', 
-                    fontWeight: 'bold',
-                    marginBottom: '25px',
-                    fontFamily: 'Montserrat, sans-serif',
-                    textShadow: '1px 1px 2px rgba(0, 0, 0, 0.7)', 
-                    borderBottom: '3px solid #293642', 
-                    paddingBottom: '10px' 
-                }}>
-                    Explore Our Exclusive Packages
-                </h2>
-                {/* Render package cards */}
-                {pkg.map((packageDetails, index) => (
-                    <div className="card" key={index}>
-                        <div className="card-inner row">
-                            <div className="card-content">
-                                {/* <h6>Package Name: {packageDetails.PackageName}</h6>
-                                <p>Description: {packageDetails.Description}</p>
-                                <p>Duration: {packageDetails.Duration}</p>
-                                <p>Vehicle Name: {packageDetails.VehicleName}</p>
-                                <p>Vehicle Type: {packageDetails.VehicleType}</p>
-                                <p>Cost: {packageDetails.Cost}</p> */}
-                                <div className="details" style={{display:'flex', position:'relative', backgroundColor: '#e8e8e8', borderRadius: '5px'}}>
-                                    <div className="package-image" style={{float: 'left', width: '35%', marginLeft: '15px'}}>
-                                    <img
-                                        src={`http://localhost:3001/images/${packageDetails.Image}`}
-                                        className="img-fluid mb-3"
-                                        style={{width:'300px', height:'200px', borderRadius: '8px', marginTop: '35px' }}
-                                    />
+                    <div className="Cards-View">
+                        <h2 style={{
+                            textAlign: 'center',
+                            color: '#515d69',
+                            fontSize: '3.5rem',
+                            fontWeight: 'bold',
+                            marginBottom: '25px',
+                            fontFamily: 'Montserrat, sans-serif',
+                            textShadow: '1px 1px 2px rgba(0, 0, 0, 0.7)',
+                            borderBottom: '3px solid #293642',
+                            paddingBottom: '10px'
+                        }}>
+                            Explore Our Exclusive Packages
+                        </h2>
+                        {/* Render package cards */}
+                        {pkg.map((packageDetails, index) => (
+                            <div className="card" key={index}>
+                                <div className="card-inner row">
+                                    <div className="card-content">
+                                        <div className="details" style={{ display: 'flex', position: 'relative', backgroundColor: '#e8e8e8', borderRadius: '5px' }}>
+                                            <div className="package-image" style={{ float: 'left', width: '35%', marginLeft: '15px' }}>
+                                                <img
+                                                    src={`http://localhost:3001/images/${packageDetails.Image}`}
+                                                    className="img-fluid mb-3"
+                                                    style={{ width: '300px', height: '200px', borderRadius: '8px', marginTop: '35px' }}
+                                                />
+                                            </div>
+                                            <div className="package-details" style={{ float: 'right', width: '65%', marginLeft: '30px', marginTop: '15px' }}>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    <h4 style={{ margin: "0", marginRight: "10px" }}>Package:</h4> &ensp;
+                                                    <i> <h5 style={{ margin: "0" }}>{packageDetails.PackageName}</h5> </i>
+                                                </div>
+                                                <br />
+                                                <p><b>Description:</b>&ensp; {packageDetails.Description}</p>
+                                                <p><b>Duration:</b>&ensp; {packageDetails.Duration}</p>
+                                                <p><b>Vehicle Name:</b>&ensp; {packageDetails.VehicleName}</p>
+                                                <p><b>Vehicle Type:</b>&ensp; {packageDetails.VehicleType}</p>
+                                                <p><b>Cost:</b>&ensp; {packageDetails.Cost} <i>.Per Person</i></p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="package-details" style={{float: 'right', width: '65%', marginLeft: '30px', marginTop: '15px'}}>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <h4 style={{ margin: "0", marginRight: "10px" }}>Package:</h4> &ensp;
-                                        <i> <h5 style={{ margin: "0" }}>{packageDetails.PackageName}</h5> </i>
-                                    </div>
-                                    <br/>
-                                    <p><b>Description:</b>&ensp; {packageDetails.Description}</p>
-                                    <p><b>Duration:</b>&ensp; {packageDetails.Duration}</p>
-                                    <p><b>Vehicle Name:</b>&ensp; {packageDetails.VehicleName}</p>
-                                    <p><b>Vehicle Type:</b>&ensp; {packageDetails.VehicleType}</p>
-                                    <p><b>Cost:</b>&ensp; {packageDetails.Cost} <i>.Per Person</i></p>
+                                    <div className="card-buttons" style={{ marginTop: '30px' }}>
+                                        <button className="btn btn-primary" style={{ padding: '10px', paddingLeft: '20px', paddingRight: '20px', marginRight: '30px', marginBottom: '8px', fontSize: '20px' }} onClick={() => handleBookNow(packageDetails)}>Book Now</button>
                                     </div>
                                 </div>
                             </div>
-                            <div className="card-buttons" style={{marginTop:'30px'}}>
-                                <button className="btn btn-primary" style ={{padding:'10px', paddingLeft:'20px', paddingRight:'20px', marginRight:'30px', marginBottom:'8px', fontSize:'20px'}} onClick={() => handleBookNow(packageDetails)}>Book Now</button>
-                            </div>
-                        </div>
+                        ))}
                     </div>
-                ))}
-                </div>
                 </div>
             </div>
             {showPopup && (
                 <div className="popup-overlay">
-                    <div className="popup" style={{marginTop:'60px'}}>
-                        
+                    <div className="popup" style={{ marginTop: '60px' }}>
                         <div className="popup-inner">
                             <h2>Confirmation:</h2>
                             <div className="date-time-picker">
@@ -358,7 +372,7 @@ function TourPackages() {
                             </div>
                             {/* Display recommended activities */}
                             {selectedPackage && selectedPackage.Recommended && Array.isArray(selectedPackage.Recommended) && (
-                               <div className="recommended-activities" style={{ backgroundColor: '#cdcdcd', borderRadius: '8px', padding: '15px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', marginTop: '20px', marginBottom:'20px', position: 'relative', width: 'auto' }}>
+                                <div className="recommended-activities" style={{ backgroundColor: '#cdcdcd', borderRadius: '8px', padding: '15px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', marginTop: '20px', marginBottom: '20px', position: 'relative', width: 'auto' }}>
                                     <h3 style={{ backgroundColor: '#0056b3', color: '#fff', padding: '15px', borderRadius: '8px 8px 0 0', marginBottom: '10px', textAlign: 'center', fontSize: '1.3rem', width: '100%', marginTop: '0', position: 'absolute', top: '0', left: '0' }}>Recommended Activities</h3>
                                     <ol style={{ listStyleType: 'none', padding: '0', margin: '0', textAlign: 'left', marginTop: '40px' }}>
                                         {selectedPackage.Recommended[0].split(',').map((activity, index) => (
@@ -367,11 +381,11 @@ function TourPackages() {
                                             </li>
                                         ))}
                                     </ol>
-                                </div>                                       
+                                </div>
                             )}
                             {/* Display weather information here */}
                             {weather && weather.length > 0 && (
-                                <div className="weather-display" style={{ backgroundColor: '#f2f2f2', borderRadius: '8px', padding: '15px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', marginTop: '20px', marginBottom:'20px', position: 'relative', width: 'auto', overflow: 'hidden' }}>
+                                <div className="weather-display" style={{ backgroundColor: '#f2f2f2', borderRadius: '8px', padding: '15px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', marginTop: '20px', marginBottom: '20px', position: 'relative', width: 'auto', overflow: 'hidden' }}>
                                     <h3 style={{ backgroundColor: '#0056b3', color: '#fff', padding: '15px', borderRadius: '8px', textAlign: 'center', fontSize: '1.5rem', width: '100%', top: '0', zIndex: '1', }}>Weather Forecast</h3>
                                     <div className="weather-info" style={{ maxHeight: '400px', overflowY: 'auto', marginTop: '20px', position: 'relative', zIndex: '0' }}>
                                         <div className="row">
@@ -391,35 +405,35 @@ function TourPackages() {
                                 </div>
                             )}
                             <div class="container">
-                            <button className="btn btn-primary" onClick={handleConfirmBooking}>Confirm Booking</button>
-                            
-                            
-                            <button style={{ 
-                                backgroundColor: '#6c757d',
-                                borderColor: '#6c757d',
-                                color: '#fff',
-                                padding: '0.375rem 0.75rem',
-                                fontSize: '1rem',
-                                lineHeight: '1.5',
-                                borderRadius: '0.25rem',
-                                cursor: 'pointer',
-                                textDecoration: 'none',
-                                display: 'inline-block',
-                                marginLeft: '30px'
+                                <button className="btn btn-primary" onClick={handleConfirmBooking}>Confirm Booking</button>
 
-                            }}
-                            onClick={handleClosePopup}
-                            type="button"
-                            >
-                            Close
-                            </button>
-                            
-                        </div>
+
+                                <button style={{
+                                    backgroundColor: '#6c757d',
+                                    borderColor: '#6c757d',
+                                    color: '#fff',
+                                    padding: '0.375rem 0.75rem',
+                                    fontSize: '1rem',
+                                    lineHeight: '1.5',
+                                    borderRadius: '0.25rem',
+                                    cursor: 'pointer',
+                                    textDecoration: 'none',
+                                    display: 'inline-block',
+                                    marginLeft: '30px'
+
+                                }}
+                                    onClick={handleClosePopup}
+                                    type="button"
+                                >
+                                    Close
+                                </button>
+
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
-            <Footer/>
+            <Footer />
         </main>
     );
 }

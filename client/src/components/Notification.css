@@ -10,12 +10,12 @@
     width: 350px;
     overflow-y: auto;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 9999; /* Set a higher z-index value */
+    z-index: 9999; 
 }
 
 .notification-panel h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
+    font-size: 25px;
+    margin-bottom: 20px;
     text-align: center;
 }
 
@@ -44,14 +44,14 @@
 }
 
 .accepted {
-    background-color: #d4edda; /* Light green */
+    background-color: #d4edda; 
 }
 
 .pending {
-    background-color: #f8d7da; /* Light red */
+    background-color: #f8d7da; 
 }
 
 .no-notification {
     text-align: center;
-    color: #6c757d; /* Medium gray */
+    color: #6c757d; 
 }

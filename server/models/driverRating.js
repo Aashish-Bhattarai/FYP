@@ -6,6 +6,7 @@ const DriverRatingSchema = new mongoose.Schema({
     userName: String,
     userID: mongoose.Schema.Types.ObjectId, 
     Rating: Number,
+    BookedDate: Date,
     PickupDropId: mongoose.Schema.Types.ObjectId 
 })
 
